@@ -12,5 +12,4 @@ and adds the room table to the `supabase_realtime` publication.
 The browser uses only the publishable key. Never place a secret or service-role key in
 the Vite environment.
 
-If the first migration was run before the room-code compatibility fix, also run
-`migrations/002_fix_room_code.sql`.
+For a new environment, only `migrations/001_live_rooms.sql` is required.
