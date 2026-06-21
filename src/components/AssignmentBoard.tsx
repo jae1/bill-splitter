@@ -100,6 +100,9 @@ export function AssignmentBoard({
       </div>
 
       <div className="people-editor">
+        {participants.length === 0 && (
+          <p className="empty-state">No people yet. Add the first person to start assigning items.</p>
+        )}
         {participants.map((person, index) => (
           <div className="person-input" key={person.id}>
             <span style={{ background: `var(--avatar-${(index % 4) + 1})` }}>

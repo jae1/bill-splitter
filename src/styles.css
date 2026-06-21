@@ -79,6 +79,7 @@ h1 em { color: var(--green); }
   border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--ink); padding: 11px 12px;
 }
 .merchant-field { max-width: 360px; margin-bottom: 22px; }
+.empty-state { grid-column: 1 / -1; margin: 0; padding: 18px; border: 1px dashed var(--line); border-radius: 12px; color: #758078; background: #faf8f2; text-align: center; }
 .ocr-status { margin-bottom: 22px; padding: 14px; border-radius: 12px; background: #edf3ee; color: #40534a; }
 .ocr-status.error { background: #fff0e8; color: #8d3f27; }
 .ocr-status > div { display: flex; justify-content: space-between; gap: 12px; }

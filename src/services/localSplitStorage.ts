@@ -1,6 +1,6 @@
 import type { SplitState } from "../domain/types";
 
-const STORAGE_KEY = "fairshare.active-split.v1";
+const STORAGE_KEY = "fairshare.active-split.v2";
 
 export function loadLocalSplit(): SplitState | null {
   try {

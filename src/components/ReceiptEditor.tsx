@@ -77,6 +77,9 @@ export function ReceiptEditor({
       </label>
 
       <div className="receipt-list">
+        {receipt.items.length === 0 && !extracting && (
+          <p className="empty-state">Upload a receipt to extract its items.</p>
+        )}
         {receipt.items.map((item) => (
           <div className="receipt-row" key={item.id}>
             <span className={`confidence ${item.confidence && item.confidence < 0.85 ? "review" : ""}`}>

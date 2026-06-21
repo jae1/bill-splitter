@@ -113,6 +113,8 @@ and verify the other receives the same revision.
 ### Functional Requirements
 
 - **FR-001**: The product MUST allow a host to create a split without registering.
+- **FR-001a**: A new or reset split MUST start blank with no sample receipt values and
+  no pre-created participants.
 - **FR-002**: The product MUST accept a receipt image and provide a manual-entry fallback.
 - **FR-003**: The product MUST present extracted receipt fields as an editable draft.
 - **FR-003a**: Receipt OCR MUST run in the browser without a paid API and MUST show

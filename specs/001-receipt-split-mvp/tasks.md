@@ -100,6 +100,13 @@ manual entry if extraction is unavailable.
 - [x] T053 Recover common OCR price punctuation errors in `src/services/receiptExtraction.ts`
 - [ ] T054 Run parser tests, production build, and real receipt retest
 
+## Phase 13: Blank Initial State
+
+- [x] T055 Replace sample receipt and default people with a blank split factory in `src/domain/defaultSplit.ts`
+- [x] T056 Make empty participant and empty receipt states actionable in `src/components/AssignmentBoard.tsx` and `src/components/ReceiptEditor.tsx`
+- [x] T057 Make reset restore the blank state in `src/App.tsx`
+- [x] T058 Run tests and production build
+
 ## Dependencies and Execution Order
 
 - Setup blocks all other phases.

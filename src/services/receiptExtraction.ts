@@ -4,19 +4,6 @@ import type { Receipt, ReceiptItem } from "../domain/types";
 export type ExtractionResult = { receipt: Receipt; rawText: string; warnings: string[] };
 export type ExtractionProgress = { progress: number; status: string };
 
-export const sampleReceipt: Receipt = {
-  merchantName: "Juniper & Stone",
-  items: [
-    { id: "item-1", name: "Truffle fries", priceCents: 1400, participantIds: [], confidence: 0.98 },
-    { id: "item-2", name: "Margherita pizza", priceCents: 2200, participantIds: [], confidence: 0.94 },
-    { id: "item-3", name: "Spicy rigatoni", priceCents: 2400, participantIds: [], confidence: 0.91 },
-    { id: "item-4", name: "Sparkling water", priceCents: 800, participantIds: [], confidence: 0.82 },
-  ],
-  taxCents: 612,
-  tipCents: 1378,
-  totalCents: 8790,
-};
-
 const moneyAtEnd = /(?:\$?\s*)(-?\d{1,5}(?:[.,]\d{2}|\s+\d{2}))\s*$/;
 const ignored = /^(subtotal|total|tax|tip|gratuity|balance|amount|cash|change|visa|mastercard|amex)/i;
 

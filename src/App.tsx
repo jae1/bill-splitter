@@ -4,8 +4,9 @@ import { ReceiptEditor } from "./components/ReceiptEditor";
 import { SplitSummary } from "./components/SplitSummary";
 import { LiveRoomControls } from "./components/LiveRoomControls";
 import { calculateSplit } from "./domain/splitCalculator";
-import type { Participant, Receipt, SplitState } from "./domain/types";
-import { extractReceipt, sampleReceipt } from "./services/receiptExtraction";
+import type { Receipt, SplitState } from "./domain/types";
+import { extractReceipt } from "./services/receiptExtraction";
+import { createBlankSplit } from "./domain/defaultSplit";
 import { clearLocalSplit, loadLocalSplit, saveLocalSplit } from "./services/localSplitStorage";
 import { createShareUrl, decodeShareSnapshot } from "./services/shareSnapshot";
 import {
@@ -17,12 +18,6 @@ import {
   type LiveRoom,
 } from "./services/liveRoom";
 import { supabaseConfigured } from "./services/supabaseClient";
-
-const initialPeople: Participant[] = [
-  { id: "p1", name: "You", venmoHandle: "@yourname", zelleRecipient: "you@example.com" },
-  { id: "p2", name: "Maya" },
-  { id: "p3", name: "Theo" },
-];
 
 const errorMessage = (error: unknown, fallback: string) => {
   if (error instanceof Error) return error.message;
@@ -37,10 +32,7 @@ export default function App() {
       history.replaceState(null, "", location.pathname);
       return shared;
     }
-    return loadLocalSplit() ?? {
-      receipt: structuredClone(sampleReceipt),
-      participants: initialPeople,
-    };
+    return loadLocalSplit() ?? createBlankSplit();
   }, []);
   const [receipt, setReceipt] = useState<Receipt>(initialState.receipt);
   const [participants, setParticipants] = useState(initialState.participants);
@@ -138,8 +130,9 @@ export default function App() {
   const reset = () => {
     if (!window.confirm("Reset this split and remove its locally saved copy?")) return;
     clearLocalSplit();
-    setReceipt(structuredClone(sampleReceipt));
-    setParticipants(initialPeople);
+    const blank = createBlankSplit();
+    setReceipt(blank.receipt);
+    setParticipants(blank.participants);
     setSelectedParticipantId(undefined);
     setSavedLabel("Split reset");
   };
