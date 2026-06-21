@@ -1,7 +1,12 @@
-import type { ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { formatMoney, parseMoney } from "../domain/splitCalculator";
 import type { Receipt } from "../domain/types";
 import { createBlankItem } from "../domain/defaultSplit";
+import {
+  defaultReceiptImageOptions,
+  transformReceiptImage,
+  type ReceiptImageOptions,
+} from "../services/receiptExtraction";
 
 type Props = {
   receipt: Receipt;
@@ -30,6 +35,30 @@ export function ReceiptEditor({
   onReceiptChange,
   onUpload,
 }: Props) {
+  const [sourceFile, setSourceFile] = useState<File>();
+  const [preparedFile, setPreparedFile] = useState<File>();
+  const [previewUrl, setPreviewUrl] = useState<string>();
+  const [imageOptions, setImageOptions] = useState<ReceiptImageOptions>(defaultReceiptImageOptions);
+  const [preparingImage, setPreparingImage] = useState(false);
+
+  useEffect(() => {
+    if (!sourceFile) return;
+    let cancelled = false;
+    setPreparingImage(true);
+    void transformReceiptImage(sourceFile, imageOptions)
+      .then((file) => {
+        if (cancelled) return;
+        setPreparedFile(file);
+        setPreviewUrl((current) => {
+          if (current) URL.revokeObjectURL(current);
+          return URL.createObjectURL(file);
+        });
+      })
+      .finally(() => {
+        if (!cancelled) setPreparingImage(false);
+      });
+    return () => { cancelled = true; };
+  }, [sourceFile, imageOptions]);
   const updateItem = (id: string, field: "name" | "priceCents", value: string) => {
     onReceiptChange({
       ...receipt,
@@ -42,7 +71,15 @@ export function ReceiptEditor({
   const updateMoney = (field: "taxCents" | "tipCents" | "totalCents", value: string) =>
     onReceiptChange({ ...receipt, [field]: parseMoney(value) });
 
-  const handleFile = (event: ChangeEvent<HTMLInputElement>) => onUpload(event.target.files?.[0]);
+  const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setSourceFile(file);
+    setImageOptions(defaultReceiptImageOptions);
+  };
+
+  const updateCrop = (field: keyof ReceiptImageOptions, percent: number) =>
+    setImageOptions((current) => ({ ...current, [field]: percent / 100 }));
 
   const addItem = () =>
     onReceiptChange({ ...receipt, items: [...receipt.items, createBlankItem()] });
@@ -65,13 +102,70 @@ export function ReceiptEditor({
         <div>
           <span className="eyebrow">Step 1</span>
           <h2 id="receipt-title">Check the receipt</h2>
-          <p>AI makes the first pass. You always get the final say.</p>
+          <p>Enter items yourself, or prepare a clean photo for an OCR draft.</p>
         </div>
         <label className="upload-button">
           <input type="file" accept="image/*" onChange={handleFile} />
-          {extracting ? "Reading receipt…" : "Upload photo"}
+          {sourceFile ? "Choose another photo" : "Choose photo"}
         </label>
       </div>
+
+      {sourceFile && (
+        <div className="image-prep">
+          <div className="receipt-preview">
+            {previewUrl && <img src={previewUrl} alt="Cropped receipt preview" />}
+            {preparingImage && <span>Preparing preview…</span>}
+          </div>
+          <div className="image-prep-controls">
+            <div className="rotation-controls">
+              <strong>Rotate</strong>
+              <button
+                className="secondary-button"
+                onClick={() => setImageOptions((current) => ({
+                  ...current,
+                  rotation: ((current.rotation + 270) % 360) as ReceiptImageOptions["rotation"],
+                }))}
+              >↶ Left</button>
+              <button
+                className="secondary-button"
+                onClick={() => setImageOptions((current) => ({
+                  ...current,
+                  rotation: ((current.rotation + 90) % 360) as ReceiptImageOptions["rotation"],
+                }))}
+              >Right ↷</button>
+            </div>
+            <fieldset>
+              <legend>Crop background</legend>
+              {([
+                ["cropTop", "Top"],
+                ["cropBottom", "Bottom"],
+                ["cropLeft", "Left"],
+                ["cropRight", "Right"],
+              ] as const).map(([field, label]) => (
+                <label key={field}>
+                  <span>{label}</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="35"
+                    value={Math.round(imageOptions[field] * 100)}
+                    onChange={(event) => updateCrop(field, Number(event.target.value))}
+                  />
+                  <small>{Math.round(imageOptions[field] * 100)}%</small>
+                </label>
+              ))}
+            </fieldset>
+            <button
+              className="primary-button analyze-button"
+              disabled={!preparedFile || extracting || preparingImage}
+              onClick={() => onUpload(preparedFile)}
+            >
+              {extracting ? "Analyzing…" : "Analyze this crop"}
+            </button>
+            <small>Tip: leave only the paper visible and keep text upright.</small>
+          </div>
+        </div>
+      )}
 
       {(extracting || extractionError || rawText) && (
         <div className={`ocr-status ${extractionError ? "error" : ""}`} role="status">

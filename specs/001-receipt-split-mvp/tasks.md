@@ -113,7 +113,14 @@ manual entry if extraction is unavailable.
 - [x] T060 Add item add, delete, duplicate, and keyboard entry controls in `src/components/ReceiptEditor.tsx`
 - [x] T061 Keep OCR results as a pending draft until explicitly applied in `src/App.tsx`
 - [x] T062 Add manual-entry and draft-application tests in `tests/`
-- [ ] T063 Run tests, build, browser validation, and production deployment
+- [x] T063 Run tests, build, browser validation, and production deployment
+
+## Phase 15: Receipt Image Preparation
+
+- [x] T064 Add lossless rotate and crop transformation in `src/services/receiptExtraction.ts`
+- [x] T065 Add photo preview, rotation, crop controls, and explicit analyze action in `src/components/ReceiptEditor.tsx`
+- [x] T066 Add transform validation tests and responsive image-prep styling
+- [x] T067 Run tests, build, browser validation, and production deployment
 
 ## Dependencies and Execution Order
 

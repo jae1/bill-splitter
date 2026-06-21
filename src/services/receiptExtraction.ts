@@ -3,6 +3,21 @@ import type { Receipt, ReceiptItem } from "../domain/types";
 
 export type ExtractionResult = { receipt: Receipt; rawText: string; warnings: string[] };
 export type ExtractionProgress = { progress: number; status: string };
+export type ReceiptImageOptions = {
+  rotation: 0 | 90 | 180 | 270;
+  cropTop: number;
+  cropRight: number;
+  cropBottom: number;
+  cropLeft: number;
+};
+
+export const defaultReceiptImageOptions: ReceiptImageOptions = {
+  rotation: 0,
+  cropTop: 0,
+  cropRight: 0,
+  cropBottom: 0,
+  cropLeft: 0,
+};
 
 const moneyAtEnd = /(?:\$?\s*)(-?\d{1,5}(?:[.,]\d{2}|\s+\d{2}))\s*$/;
 const ignored = /^(subtotal|total|tax|tip|gratuity|balance|amount|cash|change|visa|mastercard|amex)/i;
@@ -48,6 +63,51 @@ async function preprocessReceipt(file: File, onProgress?: (progress: ExtractionP
   }
   context.putImageData(image, 0, 0);
   return canvas;
+}
+
+export function cropDimensions(width: number, height: number, options: ReceiptImageOptions) {
+  const sourceWidth = Math.max(1, Math.round(width * (1 - options.cropLeft - options.cropRight)));
+  const sourceHeight = Math.max(1, Math.round(height * (1 - options.cropTop - options.cropBottom)));
+  return {
+    sourceX: Math.round(width * options.cropLeft),
+    sourceY: Math.round(height * options.cropTop),
+    sourceWidth,
+    sourceHeight,
+    outputWidth: options.rotation % 180 === 0 ? sourceWidth : sourceHeight,
+    outputHeight: options.rotation % 180 === 0 ? sourceHeight : sourceWidth,
+  };
+}
+
+export async function transformReceiptImage(file: File, options: ReceiptImageOptions): Promise<File> {
+  const bitmap = await createImageBitmap(file);
+  const dimensions = cropDimensions(bitmap.width, bitmap.height, options);
+  const canvas = document.createElement("canvas");
+  canvas.width = dimensions.outputWidth;
+  canvas.height = dimensions.outputHeight;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("This browser could not prepare the receipt preview.");
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.rotate((options.rotation * Math.PI) / 180);
+  context.drawImage(
+    bitmap,
+    dimensions.sourceX,
+    dimensions.sourceY,
+    dimensions.sourceWidth,
+    dimensions.sourceHeight,
+    -dimensions.sourceWidth / 2,
+    -dimensions.sourceHeight / 2,
+    dimensions.sourceWidth,
+    dimensions.sourceHeight,
+  );
+  bitmap.close();
+  const blob = await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob(
+      (value) => value ? resolve(value) : reject(new Error("Could not create the cropped image.")),
+      "image/jpeg",
+      0.92,
+    ),
+  );
+  return new File([blob], "prepared-receipt.jpg", { type: "image/jpeg" });
 }
 
 export function parseReceiptText(rawText: string): ExtractionResult {

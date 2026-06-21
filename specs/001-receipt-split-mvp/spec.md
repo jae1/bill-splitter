@@ -124,6 +124,8 @@ and verify the other receives the same revision.
   visible progress, success, and failure states.
 - **FR-003b**: Extracted text MUST be parsed into candidate line items and totals; when
   parsing is uncertain, the raw recognized text MUST remain available for review.
+- **FR-003c**: Before OCR, users MUST be able to preview, rotate, and crop the receipt
+  image so surrounding tables, hands, and backgrounds are excluded from recognition.
 - **FR-004**: The host MUST be able to add, edit, remove, and reorder receipt items.
 - **FR-004a**: The host MUST be able to duplicate an item and rapidly add consecutive
   item rows using the keyboard.
