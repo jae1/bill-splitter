@@ -42,6 +42,7 @@ export default function App() {
   const [extractionMessage, setExtractionMessage] = useState("");
   const [extractionError, setExtractionError] = useState<string>();
   const [rawText, setRawText] = useState<string>();
+  const [pendingReceipt, setPendingReceipt] = useState<Receipt>();
   const [savedLabel, setSavedLabel] = useState("Saved locally");
   const [liveRoom, setLiveRoom] = useState<LiveRoom | null>(null);
   const [liveStatus, setLiveStatus] = useState("Local mode");
@@ -108,7 +109,7 @@ export default function App() {
         setExtractionProgress(progress);
         setExtractionMessage(status);
       });
-      setReceipt(result.receipt);
+      setPendingReceipt(result.receipt);
       setRawText(result.rawText);
       setExtractionMessage(
         result.warnings.length ? result.warnings.join(" ") : `Found ${result.receipt.items.length} item lines. Review before assigning.`,
@@ -119,6 +120,19 @@ export default function App() {
     } finally {
       setExtracting(false);
     }
+  };
+
+  const applyOcrDraft = () => {
+    if (!pendingReceipt) return;
+    setReceipt(pendingReceipt);
+    setPendingReceipt(undefined);
+    setExtractionMessage("OCR draft applied. Review every line.");
+  };
+
+  const discardOcrDraft = () => {
+    setPendingReceipt(undefined);
+    setRawText(undefined);
+    setExtractionMessage("");
   };
 
   const share = async () => {
@@ -224,6 +238,9 @@ export default function App() {
           extractionMessage={extractionMessage}
           extractionError={extractionError}
           rawText={rawText}
+          hasPendingDraft={Boolean(pendingReceipt)}
+          onApplyDraft={applyOcrDraft}
+          onDiscardDraft={discardOcrDraft}
           onReceiptChange={setReceipt}
           onUpload={upload}
         />

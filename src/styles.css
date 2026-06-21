@@ -89,13 +89,18 @@ h1 em { color: var(--green); }
 .ocr-status summary { cursor: pointer; font-weight: 700; }
 .ocr-status pre { max-height: 220px; overflow: auto; padding: 12px; border-radius: 8px; background: white; color: #4d5650; white-space: pre-wrap; font-size: 12px; }
 .receipt-list { border-top: 1px solid var(--line); }
-.receipt-row { min-width: 0; display: grid; grid-template-columns: 60px minmax(0, 1fr) 110px; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.receipt-row { min-width: 0; display: grid; grid-template-columns: 60px minmax(0, 1fr) 110px 68px; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .receipt-row input { border-color: transparent; }
 .receipt-row input { width: 100%; min-width: 0; }
 .receipt-row input:hover, .receipt-row input:focus { border-color: var(--line); }
 .confidence { color: var(--green); font-size: 12px; font-weight: 700; }
 .confidence.review { color: #a34b28; }
 .money-input { text-align: right; }
+.item-row-actions { display: flex; gap: 4px; }
+.item-row-actions button { width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: #eee9df; color: #536159; cursor: pointer; }
+.item-row-actions button:last-child { color: #8d3f27; background: #f8e2d8; font-size: 19px; }
+.add-item-button { margin-top: 14px; border: 1px dashed var(--green); border-radius: 10px; padding: 10px 15px; color: var(--green); background: transparent; font-weight: 700; cursor: pointer; }
+.draft-actions { display: flex; gap: 8px; margin-top: 12px; }
 .receipt-totals { width: min(330px, 100%); margin: 20px 0 0 auto; }
 .receipt-totals label { display: flex; align-items: center; justify-content: space-between; margin: 9px 0; }
 .receipt-totals input { width: 110px; text-align: right; }
@@ -159,6 +164,7 @@ footer { padding: 45px 20px 60px; text-align: center; color: #778079; font-size:
   .room-actions { flex-wrap: wrap; }
   .section-heading .upload-button, .section-heading .secondary-button { justify-self: start; }
   .receipt-row { grid-template-columns: 42px minmax(0, 1fr) 78px; gap: 6px; }
+  .item-row-actions { grid-column: 2 / -1; justify-self: end; }
   .receipt-row input { padding-inline: 7px; }
   .assignment-list, .summary-grid { grid-template-columns: 1fr; }
   .assignment-card { grid-template-columns: 1fr; }
@@ -181,6 +187,7 @@ footer { padding: 45px 20px 60px; text-align: center; color: #778079; font-size:
     justify-self: end;
     text-align: right;
   }
+  .item-row-actions { grid-column: 2; }
   .receipt-row .confidence { grid-row: 1 / span 2; align-self: center; }
   .receipt-totals { width: 100%; }
 }

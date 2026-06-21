@@ -34,20 +34,23 @@ verify that every person's explained total sums to the receipt total.
 
 ---
 
-### User Story 2 - Review Receipt Extraction (Priority: P2)
+### User Story 2 - Enter or Review Receipt Items (Priority: P2)
 
-A host uploads a receipt photo and receives a draft containing merchant information,
-items, prices, tax, tip, and total that can all be corrected.
+A host can enter items manually without a receipt photo. Optionally, they may upload a
+photo to produce a draft that is reviewed before replacing any existing work.
 
-**Why this priority**: Extraction removes tedious entry but must not compromise accuracy.
+**Why this priority**: Manual entry guarantees the product remains useful when OCR is
+unavailable or inaccurate.
 
-**Independent Test**: Upload a supported receipt image, inspect the draft, edit incorrect
-values, and continue with the corrected receipt.
+**Independent Test**: Starting from blank, add, edit, duplicate, reorder, and delete items
+without uploading a file.
 
 **Acceptance Scenarios**:
 
-1. **Given** a readable receipt image, **When** extraction completes, **Then** the host
-   sees a reviewable draft rather than an automatically finalized bill.
+1. **Given** a blank split, **When** the host adds items manually, **Then** the complete
+   split flow works without an uploaded image.
+2. **Given** existing manual work, **When** extraction completes, **Then** the host sees a
+   separate draft and chooses whether to apply it.
 2. **Given** uncertain or inconsistent extraction, **When** the draft is displayed,
    **Then** questionable fields and total mismatches are clearly identified.
 3. **Given** extraction failure, **When** the host continues, **Then** manual receipt
@@ -115,13 +118,17 @@ and verify the other receives the same revision.
 - **FR-001**: The product MUST allow a host to create a split without registering.
 - **FR-001a**: A new or reset split MUST start blank with no sample receipt values and
   no pre-created participants.
-- **FR-002**: The product MUST accept a receipt image and provide a manual-entry fallback.
+- **FR-002**: The product MUST support complete manual receipt entry without an image.
 - **FR-003**: The product MUST present extracted receipt fields as an editable draft.
 - **FR-003a**: Receipt OCR MUST run in the browser without a paid API and MUST show
   visible progress, success, and failure states.
 - **FR-003b**: Extracted text MUST be parsed into candidate line items and totals; when
   parsing is uncertain, the raw recognized text MUST remain available for review.
 - **FR-004**: The host MUST be able to add, edit, remove, and reorder receipt items.
+- **FR-004a**: The host MUST be able to duplicate an item and rapidly add consecutive
+  item rows using the keyboard.
+- **FR-004b**: OCR results MUST NOT overwrite existing receipt data without explicit
+  confirmation.
 - **FR-005**: The host MUST be able to add, rename, and remove participants.
 - **FR-005a**: Removing a participant MUST also remove that participant from every item
   assignment and MUST require confirmation when the participant has assigned items.

@@ -1,4 +1,13 @@
-import type { SplitState } from "./types";
+import type { ReceiptItem, SplitState } from "./types";
+
+export function createBlankItem(): ReceiptItem {
+  return {
+    id: crypto.randomUUID(),
+    name: "",
+    priceCents: 0,
+    participantIds: [],
+  };
+}
 
 export function createBlankSplit(): SplitState {
   return {
