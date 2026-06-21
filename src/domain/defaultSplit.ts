@@ -5,6 +5,9 @@ export function createBlankItem(): ReceiptItem {
     id: crypto.randomUUID(),
     name: "",
     priceCents: 0,
+    quantity: 1,
+    unitPriceCents: 0,
+    quantityAssignments: {},
     participantIds: [],
   };
 }

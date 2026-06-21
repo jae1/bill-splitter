@@ -21,6 +21,19 @@ export const defaultReceiptImageOptions: ReceiptImageOptions = {
 
 const moneyAtEnd = /(?:\$?\s*)(-?\d{1,5}(?:[.,]\d{2}|\s+\d{2}))\s*$/;
 const ignored = /^(subtotal|total|tax|tip|gratuity|balance|amount|cash|change|visa|mastercard|amex)/i;
+const leadingQuantity = /^(\d{1,2})\s*[xX@]\s*(.+)$/;
+const trailingQuantity = /^(.+?)\s+[xX]\s*(\d{1,2})$/;
+const simpleLeadingQuantity = /^(\d{1,2})\s+([A-Za-z].+)$/;
+
+export function parseItemQuantity(label: string) {
+  const leading = label.match(leadingQuantity);
+  if (leading) return { quantity: Number(leading[1]), name: leading[2].trim() };
+  const trailing = label.match(trailingQuantity);
+  if (trailing) return { quantity: Number(trailing[2]), name: trailing[1].trim() };
+  const simple = label.match(simpleLeadingQuantity);
+  if (simple) return { quantity: Number(simple[1]), name: simple[2].trim() };
+  return { quantity: 1, name: label.trim() };
+}
 
 const normalizeOcrLine = (line: string) =>
   line
@@ -125,17 +138,20 @@ export function parseReceiptText(rawText: string): ExtractionResult {
     if (!Number.isFinite(cents)) continue;
     const label = line
       .slice(0, match.index)
-      .replace(/^[\d]+\s*[xX@]?\s*/, "")
       .replace(/[-:=\s]+$/, "")
       .trim();
     if (/tax/i.test(label)) taxCents = cents;
     else if (/(tip|gratuity)/i.test(label)) tipCents = cents;
     else if (/(grand\s*)?total|balance|amount due/i.test(label)) totalCents = Math.max(totalCents, cents);
     else if (label && !ignored.test(label) && cents !== 0) {
+      const parsed = parseItemQuantity(label);
       items.push({
         id: crypto.randomUUID(),
-        name: label,
+        name: parsed.name,
         priceCents: cents,
+        quantity: parsed.quantity,
+        unitPriceCents: Math.round(cents / parsed.quantity),
+        quantityAssignments: {},
         participantIds: [],
         confidence: 0.7,
       });

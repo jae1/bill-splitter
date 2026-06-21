@@ -27,6 +27,26 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
   const subtotals = participants.map(() => 0);
   const invalidItemIds: string[] = [];
   receipt.items.forEach((item) => {
+    const purchasedQuantity = Math.max(1, item.quantity ?? 1);
+    if (purchasedQuantity > 1) {
+      const assignments = participants.map((participant, index) => ({
+        index,
+        units: item.quantityAssignments?.[participant.id] ?? 0,
+      }));
+      const assignedUnits = assignments.reduce((sum, assignment) => sum + assignment.units, 0);
+      if (
+        assignments.some(({ units }) => !Number.isInteger(units) || units < 0) ||
+        assignedUnits !== purchasedQuantity
+      ) {
+        invalidItemIds.push(item.id);
+        return;
+      }
+      const shares = allocate(item.priceCents, assignments.map(({ units }) => units));
+      assignments.forEach(({ index }, shareIndex) => {
+        subtotals[index] += shares[shareIndex];
+      });
+      return;
+    }
     const assigned = participants
       .map((participant, index) => ({ participant, index }))
       .filter(({ participant }) => item.participantIds.includes(participant.id));
@@ -73,7 +93,11 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
     totalCents: subtotals[index] + tax[index] + tip[index] + rounding[index],
   }));
   const unassignedItemIds = receipt.items
-    .filter((item) => item.participantIds.length === 0)
+    .filter((item) =>
+      (item.quantity ?? 1) > 1
+        ? Object.values(item.quantityAssignments ?? {}).reduce((sum, units) => sum + units, 0) === 0
+        : item.participantIds.length === 0,
+    )
     .map((item) => item.id);
   const distributedCents = totals.reduce((sum, total) => sum + total.totalCents, 0);
   return {

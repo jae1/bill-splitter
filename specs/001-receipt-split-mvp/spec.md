@@ -105,6 +105,8 @@ and verify the other receives the same revision.
 
 - A receipt contains duplicate names, quantity-based lines, discounts, service fees,
   negative adjustments, or an already-included gratuity.
+- Quantity formats such as `3x Taco`, `Taco x3`, and `3 Taco` remain a single item with
+  quantity three rather than three duplicate rows.
 - An item is split among people in unequal shares or is left unassigned.
 - Receipt math differs by one or more cents due to printed rounding.
 - The uploaded file is unsupported, too large, blurry, rotated, or not a receipt.
@@ -140,6 +142,9 @@ and verify the other receives the same revision.
   allocation modes.
 - **FR-007b**: Quantity shares MUST be positive whole numbers, percentage shares MUST
   total 100%, and fixed-amount shares MUST total the item price before reconciliation.
+- **FR-007c**: Purchased item quantity MUST be distinct from weighted split mode. Whole
+  purchased units MUST be assignable to participants, and assigned units MUST equal the
+  purchased quantity before reconciliation.
 - **FR-008**: Tax, tip, discounts, and fees MUST be represented separately from items.
 - **FR-009**: Tax and tip MUST default to proportional allocation by assigned subtotal.
 - **FR-010**: The product MUST use currency-safe rounding and assign residual cents

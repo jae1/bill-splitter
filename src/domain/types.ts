@@ -11,6 +11,9 @@ export type ReceiptItem = {
   priceCents: number;
   participantIds: string[];
   confidence?: number;
+  quantity?: number;
+  unitPriceCents?: number;
+  quantityAssignments?: Record<string, number>;
   splitMode?: "equal" | "quantity" | "percentage" | "fixed";
   shares?: Record<string, number>;
 };

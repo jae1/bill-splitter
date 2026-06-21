@@ -88,6 +88,22 @@ export function AssignmentBoard({
       ),
     });
 
+  const updateUnitAssignment = (itemId: string, participantId: string, units: number) =>
+    onReceiptChange({
+      ...receipt,
+      items: receipt.items.map((item) => {
+        if (item.id !== itemId) return item;
+        const quantityAssignments = {
+          ...item.quantityAssignments,
+          [participantId]: Math.max(0, Math.round(units)),
+        };
+        const participantIds = Object.entries(quantityAssignments)
+          .filter(([, count]) => count > 0)
+          .map(([id]) => id);
+        return { ...item, quantityAssignments, participantIds };
+      }),
+    });
+
   return (
     <section className="panel" aria-labelledby="assign-title">
       <div className="section-heading">
@@ -137,9 +153,12 @@ export function AssignmentBoard({
           <article className={`assignment-card ${item.participantIds.length ? "" : "unassigned"}`} key={item.id}>
             <div>
               <strong>{item.name}</strong>
-              <span>{formatMoney(item.priceCents)}</span>
+              <span>
+                {(item.quantity ?? 1) > 1 && `${item.quantity} × ${formatMoney(item.unitPriceCents ?? Math.round(item.priceCents / (item.quantity ?? 1)))} · `}
+                {formatMoney(item.priceCents)}
+              </span>
             </div>
-            <div className="assignment-buttons" aria-label={`Assign ${item.name}`}>
+            {(item.quantity ?? 1) === 1 && <div className="assignment-buttons" aria-label={`Assign ${item.name}`}>
               {participants.map((person) => (
                 <button
                   key={person.id}
@@ -150,8 +169,38 @@ export function AssignmentBoard({
                   {person.name.slice(0, 1)}
                 </button>
               ))}
-            </div>
-            {item.participantIds.length > 1 && (
+            </div>}
+            {(item.quantity ?? 1) > 1 && (
+              <div className="unit-assignment">
+                {participants.map((person) => (
+                  <label key={person.id}>
+                    <span>{person.name}</span>
+                    <button
+                      aria-label={`Remove one ${item.name} from ${person.name}`}
+                      onClick={() => updateUnitAssignment(
+                        item.id,
+                        person.id,
+                        (item.quantityAssignments?.[person.id] ?? 0) - 1,
+                      )}
+                    >−</button>
+                    <b>{item.quantityAssignments?.[person.id] ?? 0}</b>
+                    <button
+                      aria-label={`Add one ${item.name} to ${person.name}`}
+                      onClick={() => updateUnitAssignment(
+                        item.id,
+                        person.id,
+                        (item.quantityAssignments?.[person.id] ?? 0) + 1,
+                      )}
+                    >+</button>
+                  </label>
+                ))}
+                <small>
+                  Assigned {Object.values(item.quantityAssignments ?? {}).reduce((sum, units) => sum + units, 0)}
+                  {" / "}{item.quantity}
+                </small>
+              </div>
+            )}
+            {(item.quantity ?? 1) === 1 && item.participantIds.length > 1 && (
               <div className="split-editor">
                 <label>
                   Split
@@ -165,7 +214,7 @@ export function AssignmentBoard({
                     }
                   >
                     <option value="equal">Equally</option>
-                    <option value="quantity">By quantity</option>
+                    <option value="quantity">By weight</option>
                     <option value="percentage">By percentage</option>
                     <option value="fixed">Exact amounts</option>
                   </select>

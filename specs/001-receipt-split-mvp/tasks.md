@@ -122,6 +122,15 @@ manual entry if extraction is unavailable.
 - [x] T066 Add transform validation tests and responsive image-prep styling
 - [x] T067 Run tests, build, browser validation, and production deployment
 
+## Phase 16: Purchased Quantity Allocation
+
+- [x] T068 Extend receipt items with purchased quantity and unit allocations in `src/domain/types.ts`
+- [x] T069 Parse common OCR quantity formats in `src/services/receiptExtraction.ts`
+- [x] T070 Allocate line totals by assigned units in `src/domain/splitCalculator.ts`
+- [x] T071 Add quantity and participant-unit controls in `src/components/ReceiptEditor.tsx` and `src/components/AssignmentBoard.tsx`
+- [x] T072 Add quantity parsing and reconciliation tests in `tests/`
+- [x] T073 Run tests, build, browser validation, and production deployment
+
 ## Dependencies and Execution Order
 
 - Setup blocks all other phases.

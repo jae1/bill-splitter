@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseReceiptText } from "../src/services/receiptExtraction";
+import { parseItemQuantity, parseReceiptText } from "../src/services/receiptExtraction";
 
 describe("receipt text parsing", () => {
   it("extracts item lines, tax, tip, and total", () => {
@@ -30,5 +30,13 @@ describe("receipt text parsing", () => {
     expect(result.receipt.items.map((item) => item.priceCents)).toEqual([1250, 300]);
     expect(result.receipt.taxCents).toBe(140);
     expect(result.receipt.totalCents).toBe(1690);
+    expect(result.receipt.items[0].quantity).toBe(2);
+    expect(result.receipt.items[0].unitPriceCents).toBe(625);
+  });
+
+  it("recognizes leading and trailing quantity formats", () => {
+    expect(parseItemQuantity("3x Taco")).toEqual({ quantity: 3, name: "Taco" });
+    expect(parseItemQuantity("Taco x3")).toEqual({ quantity: 3, name: "Taco" });
+    expect(parseItemQuantity("3 Taco")).toEqual({ quantity: 3, name: "Taco" });
   });
 });

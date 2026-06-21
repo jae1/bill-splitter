@@ -100,13 +100,15 @@ h1 em { color: var(--green); }
 .ocr-status summary { cursor: pointer; font-weight: 700; }
 .ocr-status pre { max-height: 220px; overflow: auto; padding: 12px; border-radius: 8px; background: white; color: #4d5650; white-space: pre-wrap; font-size: 12px; }
 .receipt-list { border-top: 1px solid var(--line); }
-.receipt-row { min-width: 0; display: grid; grid-template-columns: 60px minmax(0, 1fr) 110px 68px; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.receipt-row { min-width: 0; display: grid; grid-template-columns: 60px minmax(0, 1fr) 100px 66px 68px; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .receipt-row input { border-color: transparent; }
 .receipt-row input { width: 100%; min-width: 0; }
 .receipt-row input:hover, .receipt-row input:focus { border-color: var(--line); }
 .confidence { color: var(--green); font-size: 12px; font-weight: 700; }
 .confidence.review { color: #a34b28; }
 .money-input { text-align: right; }
+.quantity-field { display: grid; grid-template-columns: auto 42px; align-items: center; gap: 4px; color: #68716b; font-size: 11px; }
+.quantity-field input { width: 42px; padding-inline: 5px; text-align: center; }
 .item-row-actions { display: flex; gap: 4px; }
 .item-row-actions button { width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: #eee9df; color: #536159; cursor: pointer; }
 .item-row-actions button:last-child { color: #8d3f27; background: #f8e2d8; font-size: 19px; }
@@ -141,6 +143,11 @@ h1 em { color: var(--green); }
 }
 .assignment-buttons button { flex: 0 0 35px; width: 35px; height: 35px; border: 2px solid white; border-radius: 50%; background: #e6e3db; cursor: pointer; font-weight: 700; color: #68716b; }
 .assignment-buttons button.selected { background: var(--green); color: white; }
+.unit-assignment { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.unit-assignment label { display: flex; align-items: center; gap: 5px; padding: 5px 7px; border-radius: 999px; background: #f0ede5; font-size: 12px; }
+.unit-assignment button { width: 25px; height: 25px; padding: 0; border: 0; border-radius: 50%; background: white; color: var(--green); cursor: pointer; font-weight: 700; }
+.unit-assignment b { min-width: 16px; text-align: center; }
+.unit-assignment > small { position: static; margin-left: auto; color: #68716b; }
 .split-editor { grid-column: 1 / -1; padding-top: 12px; border-top: 1px dashed var(--line); }
 .split-editor > label { display: flex; align-items: center; gap: 10px; color: #68716b; font-size: 12px; font-weight: 700; }
 .share-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
@@ -176,7 +183,8 @@ footer { padding: 45px 20px 60px; text-align: center; color: #778079; font-size:
   .receipt-preview { min-height: 200px; }
   .room-actions { flex-wrap: wrap; }
   .section-heading .upload-button, .section-heading .secondary-button { justify-self: start; }
-  .receipt-row { grid-template-columns: 42px minmax(0, 1fr) 78px; gap: 6px; }
+  .receipt-row { grid-template-columns: 42px minmax(0, 1fr) 72px; gap: 6px; }
+  .quantity-field { grid-column: 2; }
   .item-row-actions { grid-column: 2 / -1; justify-self: end; }
   .receipt-row input { padding-inline: 7px; }
   .assignment-list, .summary-grid { grid-template-columns: 1fr; }

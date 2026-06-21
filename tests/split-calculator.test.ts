@@ -33,6 +33,45 @@ describe("calculateSplit", () => {
 });
 
 describe("advanced split modes", () => {
+  it("allocates purchased units without duplicating the item", () => {
+    const result = calculateSplit({
+      ...receipt,
+      items: [{
+        id: "units",
+        name: "Taco",
+        priceCents: 1800,
+        quantity: 3,
+        unitPriceCents: 600,
+        quantityAssignments: { a: 1, b: 2 },
+        participantIds: ["a", "b"],
+      }],
+      taxCents: 0,
+      tipCents: 0,
+      totalCents: 1800,
+    }, people);
+    expect(result.totals.map((total) => total.totalCents)).toEqual([600, 1200]);
+    expect(result.reconciled).toBe(true);
+  });
+
+  it("rejects incomplete purchased-unit assignments", () => {
+    const result = calculateSplit({
+      ...receipt,
+      items: [{
+        id: "units",
+        name: "Taco",
+        priceCents: 1800,
+        quantity: 3,
+        quantityAssignments: { a: 1, b: 1 },
+        participantIds: ["a", "b"],
+      }],
+      taxCents: 0,
+      tipCents: 0,
+      totalCents: 1800,
+    }, people);
+    expect(result.invalidItemIds).toContain("units");
+    expect(result.reconciled).toBe(false);
+  });
+
   it("allocates quantity shares", () => {
     const result = calculateSplit({
       ...receipt,

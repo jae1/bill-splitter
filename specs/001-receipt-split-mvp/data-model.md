@@ -15,11 +15,13 @@
 - `id`: stable identifier
 - `name`: editable description
 - `priceCents`: signed line amount
-- `quantity`: positive integer
+- `quantity`: positive purchased unit count
+- `unitPriceCents`: derived or entered unit price
+- `quantityAssignments`: participant-to-whole-unit allocation
 - `confidence`: optional extraction confidence
 - `participantIds`: zero or more equal-share assignees
 - `splitMode`: `equal | quantity | percentage | fixed`
-- `shares`: participant-to-weight or participant-to-cent values for non-equal modes
+- `shares`: participant-to-weight or participant-to-cent values for non-unit modes
 
 ## Participant
 
