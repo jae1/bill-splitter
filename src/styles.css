@@ -112,22 +112,22 @@ h1 em { color: var(--green); }
 .ocr-status summary { cursor: pointer; font-weight: 700; }
 .ocr-status pre { max-height: 220px; overflow: auto; padding: 12px; border-radius: 8px; background: white; color: #4d5650; white-space: pre-wrap; font-size: 12px; }
 .receipt-list { border-top: 1px solid var(--line); }
-.receipt-row { min-width: 0; display: grid; grid-template-columns: 60px minmax(0, 1fr) 100px 66px 96px 68px; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
-.receipt-row input { width: 100%; min-width: 0; }
+.receipt-row { min-width: 0; display: grid; grid-template-columns: minmax(180px, 1fr) 112px 84px 150px auto; gap: 10px; align-items: end; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.receipt-row.needs-review { background: linear-gradient(90deg, rgba(227, 161, 132, .08), transparent 45%); }
+.receipt-row input { width: 100%; min-width: 0; min-height: 44px; }
 .receipt-row input:hover { border-color: #786d5d; }
-.confidence { color: var(--green); font-size: 12px; font-weight: 700; }
-.confidence.review { color: #a34b28; }
-.money-input { text-align: right; }
-.quantity-field { display: grid; grid-template-columns: auto 42px; align-items: center; gap: 4px; color: #5f6962; font-size: 11px; font-weight: 700; }
-.quantity-field input { width: 42px; padding-inline: 5px; text-align: center; }
-.price-mode-field { display: grid; grid-template-columns: 1fr; gap: 4px; color: #5f6962; font-size: 11px; font-weight: 700; }
+.money-input { text-align: right; font-size: 17px; font-weight: 700; }
+.quantity-field { display: grid; grid-template-columns: auto 48px; align-items: center; gap: 6px; color: #4f5b53; font-size: 13px; font-weight: 800; }
+.quantity-field input { width: 48px; padding-inline: 6px; text-align: center; font-size: 16px; font-weight: 700; }
+.price-mode-field { display: grid; grid-template-columns: 1fr; gap: 5px; color: #4f5b53; font-size: 12px; font-weight: 800; }
 .segmented-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border: 1.5px solid var(--input-border); border-radius: 999px; background: #eee7dc; box-shadow: inset 0 1px 2px rgba(45, 52, 45, .08); }
-.segmented-toggle button { min-width: 0; padding: 7px 8px; border: 0; border-radius: 999px; background: transparent; color: #5f6962; font-size: 12px; font-weight: 800; cursor: pointer; }
+.segmented-toggle button { min-width: 0; padding: 9px 10px; border: 0; border-radius: 999px; background: transparent; color: #5f6962; font-size: 14px; font-weight: 800; cursor: pointer; }
 .segmented-toggle button.active { background: var(--green); color: white; box-shadow: 0 2px 5px rgba(33, 91, 69, .22); }
-.line-total-note { grid-column: 3 / span 3; color: #778079; font-size: 11px; text-align: right; }
-.item-row-actions { display: flex; gap: 4px; }
-.item-row-actions button { width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: #eee9df; color: #536159; cursor: pointer; }
-.item-row-actions button:last-child { color: #8d3f27; background: #f8e2d8; font-size: 19px; }
+.receipt-row-meta { grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-height: 34px; margin-top: -2px; }
+.line-total-note { color: #66736c; font-size: 13px; font-weight: 600; text-align: right; }
+.item-row-actions { display: flex; gap: 8px; }
+.item-row-actions button { width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: #eee9df; color: #536159; cursor: pointer; font-size: 17px; }
+.item-row-actions button:last-child { color: #8d3f27; background: #f8e2d8; font-size: 21px; }
 .add-item-button { margin-top: 14px; border: 1px dashed var(--green); border-radius: 10px; padding: 10px 15px; color: var(--green); background: transparent; font-weight: 700; cursor: pointer; }
 .draft-actions { display: flex; gap: 8px; margin-top: 12px; }
 .receipt-totals { width: min(330px, 100%); margin: 20px 0 0 auto; }
@@ -199,11 +199,13 @@ footer { padding: 45px 20px 60px; text-align: center; color: #778079; font-size:
   .receipt-preview { min-height: 200px; }
   .room-actions { flex-wrap: wrap; }
   .section-heading .upload-button, .section-heading .secondary-button { justify-self: start; }
-  .receipt-row { grid-template-columns: 42px minmax(0, 1fr) 72px; gap: 6px; }
-  .quantity-field, .price-mode-field, .line-total-note { grid-column: 2; }
+  .receipt-row { grid-template-columns: minmax(0, 1fr) 104px; gap: 8px; align-items: end; }
+  .receipt-row .money-input { grid-column: 2; }
+  .quantity-field { grid-column: 1; }
+  .price-mode-field { grid-column: 2; }
+  .receipt-row-meta { grid-column: 1 / -1; justify-content: space-between; align-items: center; }
   .line-total-note { text-align: left; }
-  .item-row-actions { grid-column: 2 / -1; justify-self: end; }
-  .receipt-row input { padding-inline: 7px; }
+  .receipt-row input { padding-inline: 9px; }
   .assignment-list, .summary-grid { grid-template-columns: 1fr; }
   .assignment-card { grid-template-columns: 1fr; }
   .assignment-buttons { max-width: none; justify-content: flex-start; padding-bottom: 8px; }
@@ -216,18 +218,15 @@ footer { padding: 45px 20px 60px; text-align: center; color: #778079; font-size:
   main { width: min(100% - 20px, 1120px); }
   .panel { padding: 20px 14px; border-radius: 16px; }
   .receipt-row {
-    grid-template-columns: 42px minmax(0, 1fr);
-    gap: 4px 6px;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 14px 0;
   }
-  .receipt-row .money-input {
-    grid-column: 2;
-    width: 96px;
-    justify-self: end;
-    text-align: right;
-  }
-  .price-mode-field { grid-column: 2; width: 96px; justify-self: end; }
-  .line-total-note { grid-column: 2; text-align: right; }
-  .item-row-actions { grid-column: 2; }
-  .receipt-row .confidence { grid-row: 1 / span 2; align-self: center; }
+  .receipt-row .money-input, .quantity-field, .price-mode-field { grid-column: 1; width: 100%; justify-self: stretch; }
+  .quantity-field { grid-template-columns: 1fr 64px; }
+  .quantity-field input { width: 64px; }
+  .receipt-row-meta { grid-column: 1; justify-content: space-between; }
+  .line-total-note { text-align: left; }
+  .item-row-actions { grid-column: 1; }
   .receipt-totals { width: 100%; }
 }

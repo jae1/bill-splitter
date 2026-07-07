@@ -234,12 +234,10 @@ export function ReceiptEditor({
           <p className="empty-state">Add items manually, or optionally upload a receipt for an OCR draft.</p>
         )}
         {receipt.items.map((item, index) => (
-          <div className="receipt-row" key={item.id}>
-            <span className={`confidence ${item.confidence && item.confidence < 0.85 ? "review" : ""}`}>
-              {item.confidence && item.confidence < 0.85 ? "Review" : "✓"}
-            </span>
+          <div className={`receipt-row ${item.confidence && item.confidence < 0.85 ? "needs-review" : ""}`} key={item.id}>
             <input
-              aria-label={`${item.name} name`}
+              aria-label={`${item.name || `item ${index + 1}`} name`}
+              placeholder="Item name"
               value={item.name}
               onChange={(event) => updateItem(item.id, "name", event.target.value)}
               onKeyDown={(event) => {
@@ -285,14 +283,16 @@ export function ReceiptEditor({
                 </button>
               </div>
             </div>
-            {(item.quantity ?? 1) > 1 && (
-              <small className="line-total-note">
-                Line total {formatMoney(getItemTotalCents(item))} · each {formatMoney(getItemUnitPriceCents(item))}
-              </small>
-            )}
-            <div className="item-row-actions">
-              <button aria-label={`Duplicate ${item.name || `item ${index + 1}`}`} onClick={() => duplicateItem(item.id)}>⧉</button>
-              <button aria-label={`Delete ${item.name || `item ${index + 1}`}`} onClick={() => removeItem(item.id)}>×</button>
+            <div className="receipt-row-meta">
+              {(item.quantity ?? 1) > 1 && (
+                <small className="line-total-note">
+                  Line total {formatMoney(getItemTotalCents(item))} · each {formatMoney(getItemUnitPriceCents(item))}
+                </small>
+              )}
+              <div className="item-row-actions">
+                <button aria-label={`Duplicate ${item.name || `item ${index + 1}`}`} onClick={() => duplicateItem(item.id)}>⧉</button>
+                <button aria-label={`Delete ${item.name || `item ${index + 1}`}`} onClick={() => removeItem(item.id)}>×</button>
+              </div>
             </div>
           </div>
         ))}
