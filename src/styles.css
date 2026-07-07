@@ -42,10 +42,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .brand span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--green), #0f342c); color: #ffffff; font-family: "Playfair Display"; box-shadow: 0 8px 18px rgba(23, 76, 61, .18); }
 .privacy-note { color: var(--muted); font-size: 13px; }
 main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
-.hero { padding: 76px 0 46px; text-align: center; }
+.hero { padding: 34px 0 24px; text-align: center; }
+.compact-hero { display: grid; justify-items: center; gap: 16px; }
 .eyebrow { text-transform: uppercase; letter-spacing: .16em; color: var(--orange); font-size: 12px; font-weight: 700; }
 h1, h2 { font-family: "Playfair Display", Georgia, serif; }
-h1 { margin: 14px 0; font-size: clamp(46px, 7vw, 78px); line-height: .98; letter-spacing: -.045em; }
+h1 { margin: 0; font-size: clamp(34px, 5vw, 52px); line-height: 1; letter-spacing: -.04em; }
 h1 em { color: var(--green); }
 .hero > p { max-width: 590px; margin: 24px auto 34px; color: var(--muted); font-size: 18px; }
 .progress-track { display: flex; align-items: center; justify-content: center; gap: 12px; }
@@ -202,7 +203,7 @@ footer { padding: 45px 20px 60px; text-align: center; color: #747e78; font-size:
 @media (max-width: 720px) {
   .topbar { padding: 0 18px; }
   .privacy-note { display: none; }
-  .hero { padding-top: 50px; }
+  .hero { padding: 26px 0 18px; }
   .progress-track b { display: none; }
   .section-heading { display: grid; }
   .identity-bar, .share-controls, .live-room { align-items: stretch; flex-direction: column; }

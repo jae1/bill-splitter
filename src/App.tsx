@@ -197,10 +197,8 @@ export default function App() {
       </header>
 
       <main id="top">
-        <section className="hero">
-          <span className="eyebrow">No signup. No awkward math.</span>
-          <h1>Split the receipt.<br /><em>Keep the friendship.</em></h1>
-          <p>Upload a dinner receipt, tap who had what, and get a fair total for everyone.</p>
+        <section className="hero compact-hero">
+          <h1>Split the receipt</h1>
           <div className="progress-track" aria-label="Three step process">
             <span className="active">1 <b>Receipt</b></span>
             <i />
