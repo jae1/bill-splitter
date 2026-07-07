@@ -151,6 +151,13 @@ export default function App() {
     setSavedLabel("Split reset");
   };
 
+  const leaveRoom = () => {
+    setLiveRoom(null);
+    history.replaceState(null, "", location.pathname);
+    setLiveStatus("Left room — editing locally");
+    setSavedLabel("Live room left; saved locally");
+  };
+
   const createRoom = async () => {
     setLiveStatus("Creating room…");
     try {
@@ -209,6 +216,7 @@ export default function App() {
           status={liveStatus}
           onCreate={createRoom}
           onJoin={joinRoom}
+          onLeave={leaveRoom}
         />
 
         <section className="identity-bar" aria-label="Shared split identity">

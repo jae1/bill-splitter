@@ -7,9 +7,10 @@ type Props = {
   status: string;
   onCreate: () => Promise<void>;
   onJoin: (code: string) => Promise<void>;
+  onLeave: () => void;
 };
 
-export function LiveRoomControls({ configured, room, status, onCreate, onJoin }: Props) {
+export function LiveRoomControls({ configured, room, status, onCreate, onJoin, onLeave }: Props) {
   const [code, setCode] = useState("");
 
   if (!configured) return null;
@@ -22,12 +23,15 @@ export function LiveRoomControls({ configured, room, status, onCreate, onJoin }:
         <small>{status}</small>
       </div>
       {room ? (
-        <button
-          className="secondary-button"
-          onClick={() => navigator.clipboard.writeText(`${location.origin}${location.pathname}?room=${room.code}`)}
-        >
-          Copy room link
-        </button>
+        <div className="room-actions">
+          <button
+            className="secondary-button"
+            onClick={() => navigator.clipboard.writeText(`${location.origin}${location.pathname}?room=${room.code}`)}
+          >
+            Copy room link
+          </button>
+          <button className="secondary-button danger" onClick={onLeave}>Leave room</button>
+        </div>
       ) : (
         <div className="room-actions">
           <button className="primary-button" onClick={onCreate}>Create room</button>
