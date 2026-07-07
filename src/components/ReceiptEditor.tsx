@@ -264,17 +264,27 @@ export function ReceiptEditor({
                 onChange={(event) => updateQuantity(item.id, Number(event.target.value))}
               />
             </label>
-            <label className="price-mode-field">
+            <div className="price-mode-field" role="group" aria-label={`${item.name || `item ${index + 1}`} price type`}>
               <span>Price is</span>
-              <select
-                aria-label={`${item.name || `item ${index + 1}`} price type`}
-                value={item.priceEntryMode ?? "lineTotal"}
-                onChange={(event) => updatePriceEntryMode(item.id, event.target.value as "lineTotal" | "unitPrice")}
-              >
-                <option value="lineTotal">Total</option>
-                <option value="unitPrice">Each</option>
-              </select>
-            </label>
+              <div className="segmented-toggle">
+                <button
+                  type="button"
+                  className={(item.priceEntryMode ?? "lineTotal") === "lineTotal" ? "active" : ""}
+                  aria-pressed={(item.priceEntryMode ?? "lineTotal") === "lineTotal"}
+                  onClick={() => updatePriceEntryMode(item.id, "lineTotal")}
+                >
+                  Total
+                </button>
+                <button
+                  type="button"
+                  className={(item.priceEntryMode ?? "lineTotal") === "unitPrice" ? "active" : ""}
+                  aria-pressed={(item.priceEntryMode ?? "lineTotal") === "unitPrice"}
+                  onClick={() => updatePriceEntryMode(item.id, "unitPrice")}
+                >
+                  Each
+                </button>
+              </div>
+            </div>
             {(item.quantity ?? 1) > 1 && (
               <small className="line-total-note">
                 Line total {formatMoney(getItemTotalCents(item))} · each {formatMoney(getItemUnitPriceCents(item))}

@@ -9,7 +9,9 @@
   --green: #215b45;
   --cream: #f7f3eb;
   --paper: #fffdf8;
-  --line: #ded8ca;
+  --line: #d3c9b8;
+  --input-border: #a99d8b;
+  --input-bg: #fffefb;
   --orange: #e9743f;
   --avatar-1: #f0b65f;
   --avatar-2: #a9c6b5;
@@ -19,9 +21,9 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; background: var(--cream); }
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #5b9c80; outline-offset: 2px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #5b9c80; outline-offset: 2px; }
 
 .app-shell { min-height: 100vh; }
 .topbar {
@@ -75,8 +77,18 @@ h1 em { color: var(--green); }
 }
 .upload-button input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .field { display: grid; gap: 7px; color: #6a716c; font-size: 13px; font-weight: 700; }
-.field input, .receipt-row input, .receipt-totals input, .person-input input {
-  border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--ink); padding: 11px 12px;
+.field input, .receipt-row input, .receipt-totals input, .person-input input, .share-inputs input, .room-actions input {
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  background: var(--input-bg);
+  color: var(--ink);
+  padding: 11px 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 1px 2px rgba(45, 52, 45, .07);
+}
+.field input:focus, .receipt-row input:focus, .receipt-totals input:focus, .person-input input:focus, .share-inputs input:focus, .room-actions input:focus {
+  border-color: var(--green);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(33, 91, 69, .12);
 }
 .merchant-field { max-width: 360px; margin-bottom: 22px; }
 .image-prep { display: grid; grid-template-columns: minmax(220px, .9fr) 1.1fr; gap: 22px; margin-bottom: 24px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #f4f0e7; }
@@ -101,16 +113,17 @@ h1 em { color: var(--green); }
 .ocr-status pre { max-height: 220px; overflow: auto; padding: 12px; border-radius: 8px; background: white; color: #4d5650; white-space: pre-wrap; font-size: 12px; }
 .receipt-list { border-top: 1px solid var(--line); }
 .receipt-row { min-width: 0; display: grid; grid-template-columns: 60px minmax(0, 1fr) 100px 66px 96px 68px; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
-.receipt-row input { border-color: transparent; }
 .receipt-row input { width: 100%; min-width: 0; }
-.receipt-row input:hover, .receipt-row input:focus { border-color: var(--line); }
+.receipt-row input:hover { border-color: #786d5d; }
 .confidence { color: var(--green); font-size: 12px; font-weight: 700; }
 .confidence.review { color: #a34b28; }
 .money-input { text-align: right; }
-.quantity-field { display: grid; grid-template-columns: auto 42px; align-items: center; gap: 4px; color: #68716b; font-size: 11px; }
+.quantity-field { display: grid; grid-template-columns: auto 42px; align-items: center; gap: 4px; color: #5f6962; font-size: 11px; font-weight: 700; }
 .quantity-field input { width: 42px; padding-inline: 5px; text-align: center; }
-.price-mode-field { display: grid; grid-template-columns: 1fr; gap: 3px; color: #68716b; font-size: 11px; }
-.price-mode-field select { width: 100%; min-width: 0; padding: 7px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fffdf8; color: var(--ink); }
+.price-mode-field { display: grid; grid-template-columns: 1fr; gap: 4px; color: #5f6962; font-size: 11px; font-weight: 700; }
+.segmented-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border: 1.5px solid var(--input-border); border-radius: 999px; background: #eee7dc; box-shadow: inset 0 1px 2px rgba(45, 52, 45, .08); }
+.segmented-toggle button { min-width: 0; padding: 7px 8px; border: 0; border-radius: 999px; background: transparent; color: #5f6962; font-size: 12px; font-weight: 800; cursor: pointer; }
+.segmented-toggle button.active { background: var(--green); color: white; box-shadow: 0 2px 5px rgba(33, 91, 69, .22); }
 .line-total-note { grid-column: 3 / span 3; color: #778079; font-size: 11px; text-align: right; }
 .item-row-actions { display: flex; gap: 4px; }
 .item-row-actions button { width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: #eee9df; color: #536159; cursor: pointer; }
@@ -118,7 +131,7 @@ h1 em { color: var(--green); }
 .add-item-button { margin-top: 14px; border: 1px dashed var(--green); border-radius: 10px; padding: 10px 15px; color: var(--green); background: transparent; font-weight: 700; cursor: pointer; }
 .draft-actions { display: flex; gap: 8px; margin-top: 12px; }
 .receipt-totals { width: min(330px, 100%); margin: 20px 0 0 auto; }
-.receipt-totals label { display: flex; align-items: center; justify-content: space-between; margin: 9px 0; }
+.receipt-totals label { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 9px 0; }
 .receipt-totals input { width: 110px; text-align: right; }
 .receipt-totals label:last-child { padding-top: 10px; border-top: 1px solid var(--line); font-weight: 700; }
 .math-note { color: #778079; font-size: 12px; text-align: right; }
