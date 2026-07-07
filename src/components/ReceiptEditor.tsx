@@ -152,8 +152,8 @@ export function ReceiptEditor({
           <p>Enter items yourself, or prepare a clean photo for an OCR draft.</p>
         </div>
         <label className="upload-button">
-          <input type="file" accept="image/*" onChange={handleFile} />
-          {sourceFile ? "Choose another photo" : "Choose photo"}
+          <input type="file" accept="image/*" capture="environment" onChange={handleFile} />
+          {sourceFile ? "Retake receipt photo" : "Take receipt photo"}
         </label>
       </div>
 

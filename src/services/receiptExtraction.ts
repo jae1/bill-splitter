@@ -45,6 +45,29 @@ const normalizeOcrLine = (line: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+
+const fileToBase64 = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).replace(/^data:[^,]+,/, ""));
+    reader.onerror = () => reject(new Error("Could not read the receipt image."));
+    reader.readAsDataURL(file);
+  });
+
+async function extractWithGoogleVision(file: File, onProgress?: (progress: ExtractionProgress) => void) {
+  onProgress?.({ progress: 0.12, status: "uploading to Google Vision" });
+  const imageBase64 = await fileToBase64(file);
+  const response = await fetch("/api/ocr", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ imageBase64 }),
+  });
+  const result = await response.json() as { text?: string; error?: string };
+  if (!response.ok) throw new Error(result.error || "Google Vision OCR failed.");
+  onProgress?.({ progress: 0.82, status: "parsing receipt text" });
+  return parseReceiptText(result.text || "");
+}
+
 async function preprocessReceipt(file: File, onProgress?: (progress: ExtractionProgress) => void) {
   onProgress?.({ progress: 0.03, status: "preparing image" });
   const bitmap = await createImageBitmap(file);
@@ -179,6 +202,12 @@ export async function extractReceipt(
   onProgress?: (progress: ExtractionProgress) => void,
 ): Promise<ExtractionResult> {
   if (!file.type.startsWith("image/")) throw new Error("Choose an image file such as JPG, PNG, or HEIC.");
+  try {
+    return await extractWithGoogleVision(file, onProgress);
+  } catch (error) {
+    onProgress?.({ progress: 0.05, status: "Google Vision unavailable, trying browser OCR" });
+  }
+
   const prepared = await preprocessReceipt(file, onProgress);
   const worker = await createWorker("eng", undefined, {
     logger: (message) => {

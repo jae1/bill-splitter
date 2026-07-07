@@ -5,6 +5,9 @@ coverage/
 *.tsbuildinfo
 .env*
 !.env.example
+*-service-account*.json
+eng-digit-*.json
+google-service-account.json
 .DS_Store
 .idea/
 .vscode/
