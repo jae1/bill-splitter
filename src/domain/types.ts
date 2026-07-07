@@ -25,6 +25,7 @@ export type Receipt = {
   taxCents: number;
   tipCents: number;
   totalCents: number;
+  totalMode?: "auto" | "manual";
 };
 
 export type ParticipantTotal = {

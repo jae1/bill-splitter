@@ -149,6 +149,8 @@ and verify the other receives the same revision.
   modes. Changing quantity MUST NOT silently rewrite the entered price, and the UI MUST
   display the computed line total when quantity is greater than one.
 - **FR-008**: Tax, tip, discounts, and fees MUST be represented separately from items.
+- **FR-008a**: Receipt total MUST auto-calculate from item totals, tax, and tip by
+  default, while allowing a manual override for printed receipt differences.
 - **FR-009**: Tax and tip MUST default to proportional allocation by assigned subtotal.
 - **FR-010**: The product MUST use currency-safe rounding and assign residual cents
   deterministically while showing where they were assigned.

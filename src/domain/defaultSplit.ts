@@ -21,6 +21,7 @@ export function createBlankSplit(): SplitState {
       taxCents: 0,
       tipCents: 0,
       totalCents: 0,
+      totalMode: "auto",
     },
     participants: [],
   };

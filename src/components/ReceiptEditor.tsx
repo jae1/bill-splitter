@@ -9,6 +9,15 @@ import {
 } from "../services/receiptExtraction";
 import { MoneyInput } from "./MoneyInput";
 
+
+const getAutoReceiptTotalCents = (receipt: Receipt) =>
+  receipt.items.reduce((sum, item) => sum + getItemTotalCents(item), 0) + receipt.taxCents + receipt.tipCents;
+
+const withAutoReceiptTotal = (receipt: Receipt): Receipt =>
+  (receipt.totalMode ?? "auto") === "auto"
+    ? { ...receipt, totalCents: getAutoReceiptTotalCents(receipt), totalMode: "auto" }
+    : receipt;
+
 type Props = {
   receipt: Receipt;
   extracting: boolean;
@@ -61,7 +70,7 @@ export function ReceiptEditor({
     return () => { cancelled = true; };
   }, [sourceFile, imageOptions]);
   const updateItem = (id: string, field: "name" | "priceCents", value: string | number) => {
-    onReceiptChange({
+    onReceiptChange(withAutoReceiptTotal({
       ...receipt,
       items: receipt.items.map((item) => {
         if (item.id !== id) return item;
@@ -71,11 +80,11 @@ export function ReceiptEditor({
         }
         return { ...item, name: String(value) };
       }),
-    });
+    }));
   };
 
   const updateQuantity = (id: string, quantity: number) =>
-    onReceiptChange({
+    onReceiptChange(withAutoReceiptTotal({
       ...receipt,
       items: receipt.items.map((item) => {
         if (item.id !== id) return item;
@@ -87,20 +96,27 @@ export function ReceiptEditor({
           quantityAssignments: safeQuantity > 1 ? item.quantityAssignments ?? {} : {},
         };
       }),
-    });
+    }));
 
   const updatePriceEntryMode = (id: string, priceEntryMode: "lineTotal" | "unitPrice") =>
-    onReceiptChange({
+    onReceiptChange(withAutoReceiptTotal({
       ...receipt,
       items: receipt.items.map((item) => {
         if (item.id !== id) return item;
         const nextItem = { ...item, priceEntryMode };
         return { ...nextItem, unitPriceCents: getItemUnitPriceCents(nextItem) };
       }),
-    });
+    }));
 
-  const updateMoney = (field: "taxCents" | "tipCents" | "totalCents", value: number) =>
-    onReceiptChange({ ...receipt, [field]: value });
+  const updateMoney = (field: "taxCents" | "tipCents" | "totalCents", value: number) => {
+    const nextReceipt = field === "totalCents"
+      ? { ...receipt, totalCents: value, totalMode: "manual" as const }
+      : withAutoReceiptTotal({ ...receipt, [field]: value });
+    onReceiptChange(nextReceipt);
+  };
+
+  const useAutoTotal = () =>
+    onReceiptChange(withAutoReceiptTotal({ ...receipt, totalMode: "auto" }));
 
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -113,10 +129,10 @@ export function ReceiptEditor({
     setImageOptions((current) => ({ ...current, [field]: percent / 100 }));
 
   const addItem = () =>
-    onReceiptChange({ ...receipt, items: [...receipt.items, createBlankItem()] });
+    onReceiptChange(withAutoReceiptTotal({ ...receipt, items: [...receipt.items, createBlankItem()] }));
 
   const removeItem = (id: string) =>
-    onReceiptChange({ ...receipt, items: receipt.items.filter((item) => item.id !== id) });
+    onReceiptChange(withAutoReceiptTotal({ ...receipt, items: receipt.items.filter((item) => item.id !== id) }));
 
   const duplicateItem = (id: string) => {
     const index = receipt.items.findIndex((item) => item.id === id);
@@ -124,7 +140,7 @@ export function ReceiptEditor({
     const copy = { ...receipt.items[index], id: crypto.randomUUID(), participantIds: [] };
     const items = [...receipt.items];
     items.splice(index + 1, 0, copy);
-    onReceiptChange({ ...receipt, items });
+    onReceiptChange(withAutoReceiptTotal({ ...receipt, items }));
   };
 
   return (
@@ -302,12 +318,18 @@ export function ReceiptEditor({
       <div className="receipt-totals">
         {(["taxCents", "tipCents", "totalCents"] as const).map((field) => (
           <label key={field}>
-            <span>{field === "taxCents" ? "Tax" : field === "tipCents" ? "Tip" : "Receipt total"}</span>
+            <span>
+              {field === "taxCents" ? "Tax" : field === "tipCents" ? "Tip" : "Receipt total"}
+              {field === "totalCents" && <small>{(receipt.totalMode ?? "auto") === "auto" ? "Auto" : "Manual"}</small>}
+            </span>
             <MoneyInput
               aria-label={field}
               valueCents={receipt[field]}
               onValueCentsChange={(value) => updateMoney(field, value)}
             />
+            {field === "totalCents" && (receipt.totalMode ?? "auto") === "manual" && (
+              <button type="button" className="inline-link-button" onClick={useAutoTotal}>Use auto</button>
+            )}
           </label>
         ))}
       </div>

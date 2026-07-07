@@ -165,3 +165,10 @@ with responsive styling, automated checks, and quickstart validation.
 - [x] T078 Add receipt editor controls that keep entered prices stable while showing computed line totals
 - [x] T079 Update assignment and fixed split displays to use computed line totals
 - [x] T080 Add regression coverage for quantity line-total and unit-price cases
+
+## Phase 19: Auto Receipt Total
+
+- [x] T081 Add auto/manual receipt total mode to the receipt model
+- [x] T082 Auto-update receipt total from items, tax, and tip during manual entry
+- [x] T083 Add manual override and return-to-auto controls in the receipt editor
+- [x] T084 Validate tests, build, and production deployment
