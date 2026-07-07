@@ -160,46 +160,47 @@ export function AssignmentBoard({
                 {formatMoney(getItemTotalCents(item))}
               </span>
             </div>
-            {getItemQuantity(item) === 1 && <div className="assignment-buttons" aria-label={`Assign ${item.name}`}>
-              {participants.map((person) => (
+            <div className="participant-picker" aria-label={`Assign ${item.name || "item"}`}>
+              {getItemQuantity(item) === 1 && participants.map((person) => (
                 <button
                   key={person.id}
-                  className={item.participantIds.includes(person.id) ? "selected" : ""}
+                  className={`participant-chip ${item.participantIds.includes(person.id) ? "selected" : ""}`}
                   aria-pressed={item.participantIds.includes(person.id)}
                   onClick={() => toggleAssignment(item.id, person.id)}
                 >
-                  {person.name.slice(0, 1)}
+                  {person.name || "Unnamed"}
                 </button>
               ))}
-            </div>}
+              {getItemQuantity(item) > 1 && participants.map((person) => (
+                <div
+                  className={`participant-chip unit-chip ${(item.quantityAssignments?.[person.id] ?? 0) > 0 ? "selected" : ""}`}
+                  key={person.id}
+                >
+                  <span>{person.name || "Unnamed"}</span>
+                  <button
+                    aria-label={`Remove one ${item.name} from ${person.name}`}
+                    onClick={() => updateUnitAssignment(
+                      item.id,
+                      person.id,
+                      (item.quantityAssignments?.[person.id] ?? 0) - 1,
+                    )}
+                  >−</button>
+                  <b>{item.quantityAssignments?.[person.id] ?? 0}</b>
+                  <button
+                    aria-label={`Add one ${item.name} to ${person.name}`}
+                    onClick={() => updateUnitAssignment(
+                      item.id,
+                      person.id,
+                      (item.quantityAssignments?.[person.id] ?? 0) + 1,
+                    )}
+                  >+</button>
+                </div>
+              ))}
+            </div>
             {getItemQuantity(item) > 1 && (
-              <div className="unit-assignment">
-                {participants.map((person) => (
-                  <label key={person.id}>
-                    <span>{person.name}</span>
-                    <button
-                      aria-label={`Remove one ${item.name} from ${person.name}`}
-                      onClick={() => updateUnitAssignment(
-                        item.id,
-                        person.id,
-                        (item.quantityAssignments?.[person.id] ?? 0) - 1,
-                      )}
-                    >−</button>
-                    <b>{item.quantityAssignments?.[person.id] ?? 0}</b>
-                    <button
-                      aria-label={`Add one ${item.name} to ${person.name}`}
-                      onClick={() => updateUnitAssignment(
-                        item.id,
-                        person.id,
-                        (item.quantityAssignments?.[person.id] ?? 0) + 1,
-                      )}
-                    >+</button>
-                  </label>
-                ))}
-                <small>
-                  Assigned {Object.values(item.quantityAssignments ?? {}).reduce((sum, units) => sum + units, 0)}
-                  {" / "}{item.quantity}
-                </small>
+              <div className="assignment-progress">
+                Assigned {Object.values(item.quantityAssignments ?? {}).reduce((sum, units) => sum + units, 0)}
+                {" / "}{item.quantity}
               </div>
             )}
             {(item.quantity ?? 1) === 1 && item.participantIds.length > 1 && (
@@ -254,7 +255,7 @@ export function AssignmentBoard({
                 )}
               </div>
             )}
-            {!item.participantIds.length && <small>Needs someone</small>}
+            {!item.participantIds.length && <small className="assignment-warning">Needs someone</small>}
           </article>
         ))}
       </div>

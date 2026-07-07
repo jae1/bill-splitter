@@ -148,22 +148,21 @@ h1 em { color: var(--green); }
 }
 .remove-person:disabled { opacity: .35; cursor: not-allowed; }
 .assignment-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.assignment-card { position: relative; min-width: 0; display: grid; grid-template-columns: minmax(110px, 1fr) minmax(0, auto); gap: 15px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; }
+.assignment-card { min-width: 0; display: grid; gap: 14px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #fffdf8; }
 .assignment-card.unassigned { border-color: #e3a184; background: #fff8f4; }
-.assignment-card > div:first-child { display: grid; gap: 3px; }
-.assignment-card > div:first-child span { color: #69736d; font-size: 13px; }
-.assignment-card small { position: absolute; right: 15px; bottom: 3px; color: #a34b28; }
-.assignment-buttons {
-  max-width: 240px; display: flex; flex-wrap: wrap; justify-content: flex-end;
-  align-items: center; gap: 4px;
-}
-.assignment-buttons button { flex: 0 0 35px; width: 35px; height: 35px; border: 2px solid white; border-radius: 50%; background: #e6e3db; cursor: pointer; font-weight: 700; color: #68716b; }
-.assignment-buttons button.selected { background: var(--green); color: white; }
-.unit-assignment { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px dashed var(--line); }
-.unit-assignment label { display: flex; align-items: center; gap: 5px; padding: 5px 7px; border-radius: 999px; background: #f0ede5; font-size: 12px; }
-.unit-assignment button { width: 25px; height: 25px; padding: 0; border: 0; border-radius: 50%; background: white; color: var(--green); cursor: pointer; font-weight: 700; }
-.unit-assignment b { min-width: 16px; text-align: center; }
-.unit-assignment > small { position: static; margin-left: auto; color: #68716b; }
+.assignment-card > div:first-child { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--line); }
+.assignment-card > div:first-child strong { min-width: 0; overflow-wrap: anywhere; font-size: 17px; }
+.assignment-card > div:first-child span { flex: 0 0 auto; color: #69736d; font-size: 14px; font-weight: 700; }
+.participant-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.participant-chip { min-height: 38px; max-width: 100%; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 999px; background: #f0ede5; color: #24352d; cursor: pointer; font-weight: 800; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.participant-chip.selected { border-color: var(--green); background: var(--green); color: white; }
+.unit-chip { display: inline-flex; align-items: center; gap: 7px; cursor: default; }
+.unit-chip span { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.unit-chip button { width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: white; color: var(--green); cursor: pointer; font-weight: 900; }
+.unit-chip.selected button { background: rgba(255,255,255,.92); }
+.unit-chip b { min-width: 18px; text-align: center; font-size: 15px; }
+.assignment-progress { justify-self: end; color: #68716b; font-size: 14px; font-weight: 800; }
+.assignment-warning { justify-self: end; color: #a34b28; font-size: 14px; font-weight: 800; }
 .split-editor { grid-column: 1 / -1; padding-top: 12px; border-top: 1px dashed var(--line); }
 .split-editor > label { display: flex; align-items: center; gap: 10px; color: #68716b; font-size: 12px; font-weight: 700; }
 .share-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
@@ -208,8 +207,9 @@ footer { padding: 45px 20px 60px; text-align: center; color: #778079; font-size:
   .receipt-row input { padding-inline: 9px; }
   .assignment-list, .summary-grid { grid-template-columns: 1fr; }
   .assignment-card { grid-template-columns: 1fr; }
-  .assignment-buttons { max-width: none; justify-content: flex-start; padding-bottom: 8px; }
-  .assignment-card small { left: 18px; right: auto; }
+  .assignment-card > div:first-child { align-items: flex-start; flex-direction: column; }
+  .participant-picker { align-items: stretch; }
+  .participant-chip { white-space: normal; }
   .payment-card { grid-template-columns: 1fr; }
   .payment-actions { grid-row: 2; }
 }
