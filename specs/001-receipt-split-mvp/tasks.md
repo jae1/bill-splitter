@@ -152,3 +152,9 @@ manual entry if extraction is unavailable.
 Complete Setup and Foundational work, then deliver User Story 1 as the independently
 testable MVP. Add extraction review and payment handoffs as separate increments. Finish
 with responsive styling, automated checks, and quickstart validation.
+
+## Phase 17: Mobile Money Entry Fix
+
+- [x] T074 Replace receipt and adjustment money fields with mobile decimal text input in `src/components/MoneyInput.tsx` and `src/components/ReceiptEditor.tsx`
+- [x] T075 Replace exact split amount number steppers with the shared money input in `src/components/AssignmentBoard.tsx`
+- [x] T076 Add regression tests for mobile money draft entry and run validation

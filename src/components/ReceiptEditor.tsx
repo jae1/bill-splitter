@@ -1,5 +1,5 @@
 import { useEffect, useState, type ChangeEvent } from "react";
-import { formatMoney, parseMoney } from "../domain/splitCalculator";
+import { formatMoney } from "../domain/splitCalculator";
 import type { Receipt } from "../domain/types";
 import { createBlankItem } from "../domain/defaultSplit";
 import {
@@ -7,6 +7,7 @@ import {
   transformReceiptImage,
   type ReceiptImageOptions,
 } from "../services/receiptExtraction";
+import { MoneyInput } from "./MoneyInput";
 
 type Props = {
   receipt: Receipt;
@@ -59,7 +60,7 @@ export function ReceiptEditor({
       });
     return () => { cancelled = true; };
   }, [sourceFile, imageOptions]);
-  const updateItem = (id: string, field: "name" | "priceCents", value: string) => {
+  const updateItem = (id: string, field: "name" | "priceCents", value: string | number) => {
     onReceiptChange({
       ...receipt,
       items: receipt.items.map((item) =>
@@ -67,10 +68,10 @@ export function ReceiptEditor({
           ? field === "priceCents"
             ? {
                 ...item,
-                priceCents: parseMoney(value),
-                unitPriceCents: Math.round(parseMoney(value) / (item.quantity ?? 1)),
+                priceCents: Number(value),
+                unitPriceCents: Math.round(Number(value) / (item.quantity ?? 1)),
               }
-            : { ...item, name: value }
+            : { ...item, name: String(value) }
           : item,
       ),
     });
@@ -91,8 +92,8 @@ export function ReceiptEditor({
       }),
     });
 
-  const updateMoney = (field: "taxCents" | "tipCents" | "totalCents", value: string) =>
-    onReceiptChange({ ...receipt, [field]: parseMoney(value) });
+  const updateMoney = (field: "taxCents" | "tipCents" | "totalCents", value: number) =>
+    onReceiptChange({ ...receipt, [field]: value });
 
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -238,11 +239,11 @@ export function ReceiptEditor({
                 if (event.key === "Enter" && index === receipt.items.length - 1) addItem();
               }}
             />
-            <input
+            <MoneyInput
               className="money-input"
               aria-label={`${item.name} price`}
-              value={(item.priceCents / 100).toFixed(2)}
-              onChange={(event) => updateItem(item.id, "priceCents", event.target.value)}
+              valueCents={item.priceCents}
+              onValueCentsChange={(value) => updateItem(item.id, "priceCents", value)}
             />
             <label className="quantity-field">
               <span>Qty</span>
@@ -268,10 +269,10 @@ export function ReceiptEditor({
         {(["taxCents", "tipCents", "totalCents"] as const).map((field) => (
           <label key={field}>
             <span>{field === "taxCents" ? "Tax" : field === "tipCents" ? "Tip" : "Receipt total"}</span>
-            <input
+            <MoneyInput
               aria-label={field}
-              value={(receipt[field] / 100).toFixed(2)}
-              onChange={(event) => updateMoney(field, event.target.value)}
+              valueCents={receipt[field]}
+              onValueCentsChange={(value) => updateMoney(field, value)}
             />
           </label>
         ))}

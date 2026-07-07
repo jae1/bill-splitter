@@ -166,6 +166,9 @@ and verify the other receives the same revision.
   and operable with at least 20 participants without overflowing their containers.
 - **FR-021**: Receipt item names, prices, and confidence indicators MUST remain fully
   visible and editable without horizontal page overflow at a 320 CSS pixel viewport.
+- **FR-021a**: Money inputs MUST use mobile-friendly decimal text entry without
+  browser number steppers, and MUST preserve in-progress values such as `8`, `8.`,
+  and `.75` while editing.
 - **FR-022**: Opening a share link MUST create an independent local copy and MUST NOT
   mutate the sender's saved browser state.
 - **FR-023**: A recipient MUST be able to select which participant represents them.

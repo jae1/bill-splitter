@@ -1,5 +1,6 @@
 import type { Participant, Receipt } from "../domain/types";
 import { formatMoney } from "../domain/splitCalculator";
+import { MoneyInput } from "./MoneyInput";
 
 type Props = {
   receipt: Receipt;
@@ -228,15 +229,22 @@ export function AssignmentBoard({
                       return (
                         <label key={id}>
                           <span>{person?.name}</span>
-                          <input
-                            type="number"
-                            min={mode === "quantity" ? 1 : 0}
-                            step={mode === "fixed" ? "0.01" : "1"}
-                            value={(item.shares?.[id] ?? 0) / divisor}
-                            onChange={(event) =>
-                              updateShare(item.id, id, Math.round(Number(event.target.value) * divisor))
-                            }
-                          />
+                          {mode === "fixed" ? (
+                            <MoneyInput
+                              aria-label={`${person?.name ?? "Participant"} exact amount`}
+                              valueCents={item.shares?.[id] ?? 0}
+                              onValueCentsChange={(value) => updateShare(item.id, id, value)}
+                            />
+                          ) : (
+                            <input
+                              type="number"
+                              inputMode="numeric"
+                              min={mode === "quantity" ? 1 : 0}
+                              step="1"
+                              value={item.shares?.[id] ?? 0}
+                              onChange={(event) => updateShare(item.id, id, Math.round(Number(event.target.value)))}
+                            />
+                          )}
                           <small>{mode === "percentage" ? "%" : mode === "fixed" ? "$" : "×"}</small>
                         </label>
                       );
