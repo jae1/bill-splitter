@@ -158,3 +158,10 @@ with responsive styling, automated checks, and quickstart validation.
 - [x] T074 Replace receipt and adjustment money fields with mobile decimal text input in `src/components/MoneyInput.tsx` and `src/components/ReceiptEditor.tsx`
 - [x] T075 Replace exact split amount number steppers with the shared money input in `src/components/AssignmentBoard.tsx`
 - [x] T076 Add regression tests for mobile money draft entry and run validation
+
+## Phase 18: Quantity Price Mode
+
+- [x] T077 Add line-total vs unit-price item mode to the receipt domain model and split calculator
+- [x] T078 Add receipt editor controls that keep entered prices stable while showing computed line totals
+- [x] T079 Update assignment and fixed split displays to use computed line totals
+- [x] T080 Add regression coverage for quantity line-total and unit-price cases

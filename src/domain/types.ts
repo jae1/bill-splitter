@@ -9,6 +9,7 @@ export type ReceiptItem = {
   id: string;
   name: string;
   priceCents: number;
+  priceEntryMode?: "lineTotal" | "unitPrice";
   participantIds: string[];
   confidence?: number;
   quantity?: number;

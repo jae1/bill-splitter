@@ -53,6 +53,47 @@ describe("advanced split modes", () => {
     expect(result.reconciled).toBe(true);
   });
 
+
+  it("treats purchased quantity prices as line totals by default", () => {
+    const result = calculateSplit({
+      ...receipt,
+      items: [{
+        id: "line-total",
+        name: "Slider",
+        priceCents: 1200,
+        quantity: 3,
+        priceEntryMode: "lineTotal",
+        quantityAssignments: { a: 1, b: 2 },
+        participantIds: ["a", "b"],
+      }],
+      taxCents: 0,
+      tipCents: 0,
+      totalCents: 1200,
+    }, people);
+    expect(result.totals.map((total) => total.totalCents)).toEqual([400, 800]);
+    expect(result.reconciled).toBe(true);
+  });
+
+  it("multiplies purchased quantity when the entered price is per item", () => {
+    const result = calculateSplit({
+      ...receipt,
+      items: [{
+        id: "unit-price",
+        name: "Slider",
+        priceCents: 1200,
+        quantity: 3,
+        priceEntryMode: "unitPrice",
+        quantityAssignments: { a: 1, b: 2 },
+        participantIds: ["a", "b"],
+      }],
+      taxCents: 0,
+      tipCents: 0,
+      totalCents: 3600,
+    }, people);
+    expect(result.totals.map((total) => total.totalCents)).toEqual([1200, 2400]);
+    expect(result.reconciled).toBe(true);
+  });
+
   it("rejects incomplete purchased-unit assignments", () => {
     const result = calculateSplit({
       ...receipt,

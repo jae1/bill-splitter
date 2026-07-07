@@ -5,6 +5,14 @@ export const formatMoney = (cents: number) =>
 
 export const parseMoney = (value: string) => Math.round((Number.parseFloat(value) || 0) * 100);
 
+export const getItemQuantity = (item: { quantity?: number }) => Math.max(1, Math.round(item.quantity ?? 1));
+
+export const getItemTotalCents = (item: { priceCents: number; quantity?: number; priceEntryMode?: "lineTotal" | "unitPrice" }) =>
+  item.priceEntryMode === "unitPrice" ? item.priceCents * getItemQuantity(item) : item.priceCents;
+
+export const getItemUnitPriceCents = (item: { priceCents: number; quantity?: number; priceEntryMode?: "lineTotal" | "unitPrice" }) =>
+  item.priceEntryMode === "unitPrice" ? item.priceCents : Math.round(item.priceCents / getItemQuantity(item));
+
 const allocate = (amount: number, weights: number[]) => {
   const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
   if (!totalWeight || !amount) return weights.map(() => 0);
@@ -27,7 +35,8 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
   const subtotals = participants.map(() => 0);
   const invalidItemIds: string[] = [];
   receipt.items.forEach((item) => {
-    const purchasedQuantity = Math.max(1, item.quantity ?? 1);
+    const purchasedQuantity = getItemQuantity(item);
+    const itemTotalCents = getItemTotalCents(item);
     if (purchasedQuantity > 1) {
       const assignments = participants.map((participant, index) => ({
         index,
@@ -41,7 +50,7 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
         invalidItemIds.push(item.id);
         return;
       }
-      const shares = allocate(item.priceCents, assignments.map(({ units }) => units));
+      const shares = allocate(itemTotalCents, assignments.map(({ units }) => units));
       assignments.forEach(({ index }, shareIndex) => {
         subtotals[index] += shares[shareIndex];
       });
@@ -55,7 +64,7 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
     const values = assigned.map(({ participant }) => item.shares?.[participant.id] ?? 0);
     let shares: number[];
     if (mode === "fixed") {
-      if (values.some((value) => value < 0) || values.reduce((sum, value) => sum + value, 0) !== item.priceCents) {
+      if (values.some((value) => value < 0) || values.reduce((sum, value) => sum + value, 0) !== itemTotalCents) {
         invalidItemIds.push(item.id);
         return;
       }
@@ -65,15 +74,15 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
         invalidItemIds.push(item.id);
         return;
       }
-      shares = allocate(item.priceCents, values);
+      shares = allocate(itemTotalCents, values);
     } else if (mode === "quantity") {
       if (values.some((value) => !Number.isInteger(value) || value <= 0)) {
         invalidItemIds.push(item.id);
         return;
       }
-      shares = allocate(item.priceCents, values);
+      shares = allocate(itemTotalCents, values);
     } else {
-      shares = allocate(item.priceCents, assigned.map(() => 1));
+      shares = allocate(itemTotalCents, assigned.map(() => 1));
     }
     assigned.forEach(({ index }, shareIndex) => {
       subtotals[index] += shares[shareIndex];

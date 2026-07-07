@@ -1,5 +1,5 @@
 import type { Participant, Receipt } from "../domain/types";
-import { formatMoney } from "../domain/splitCalculator";
+import { formatMoney, getItemQuantity, getItemTotalCents, getItemUnitPriceCents } from "../domain/splitCalculator";
 import { MoneyInput } from "./MoneyInput";
 
 type Props = {
@@ -75,7 +75,8 @@ export function AssignmentBoard({
         item.participantIds.forEach((id, index) => {
           if (splitMode === "quantity") shares[id] = 1;
           if (splitMode === "percentage") shares[id] = Math.floor(100 / count) + (index < 100 % count ? 1 : 0);
-          if (splitMode === "fixed") shares[id] = Math.floor(item.priceCents / count) + (index < item.priceCents % count ? 1 : 0);
+          const itemTotalCents = getItemTotalCents(item);
+          if (splitMode === "fixed") shares[id] = Math.floor(itemTotalCents / count) + (index < itemTotalCents % count ? 1 : 0);
         });
         return { ...item, splitMode, shares };
       }),
@@ -155,11 +156,11 @@ export function AssignmentBoard({
             <div>
               <strong>{item.name}</strong>
               <span>
-                {(item.quantity ?? 1) > 1 && `${item.quantity} × ${formatMoney(item.unitPriceCents ?? Math.round(item.priceCents / (item.quantity ?? 1)))} · `}
-                {formatMoney(item.priceCents)}
+                {getItemQuantity(item) > 1 && `${getItemQuantity(item)} × ${formatMoney(getItemUnitPriceCents(item))} · `}
+                {formatMoney(getItemTotalCents(item))}
               </span>
             </div>
-            {(item.quantity ?? 1) === 1 && <div className="assignment-buttons" aria-label={`Assign ${item.name}`}>
+            {getItemQuantity(item) === 1 && <div className="assignment-buttons" aria-label={`Assign ${item.name}`}>
               {participants.map((person) => (
                 <button
                   key={person.id}
@@ -171,7 +172,7 @@ export function AssignmentBoard({
                 </button>
               ))}
             </div>}
-            {(item.quantity ?? 1) > 1 && (
+            {getItemQuantity(item) > 1 && (
               <div className="unit-assignment">
                 {participants.map((person) => (
                   <label key={person.id}>

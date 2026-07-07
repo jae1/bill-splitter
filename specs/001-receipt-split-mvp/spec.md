@@ -145,6 +145,9 @@ and verify the other receives the same revision.
 - **FR-007c**: Purchased item quantity MUST be distinct from weighted split mode. Whole
   purchased units MUST be assignable to participants, and assigned units MUST equal the
   purchased quantity before reconciliation.
+- **FR-007d**: Purchased item prices MUST support both line-total and unit-price entry
+  modes. Changing quantity MUST NOT silently rewrite the entered price, and the UI MUST
+  display the computed line total when quantity is greater than one.
 - **FR-008**: Tax, tip, discounts, and fees MUST be represented separately from items.
 - **FR-009**: Tax and tip MUST default to proportional allocation by assigned subtotal.
 - **FR-010**: The product MUST use currency-safe rounding and assign residual cents

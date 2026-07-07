@@ -5,6 +5,7 @@ export function createBlankItem(): ReceiptItem {
     id: crypto.randomUUID(),
     name: "",
     priceCents: 0,
+    priceEntryMode: "lineTotal",
     quantity: 1,
     unitPriceCents: 0,
     quantityAssignments: {},

@@ -1,5 +1,5 @@
 import { useEffect, useState, type ChangeEvent } from "react";
-import { formatMoney } from "../domain/splitCalculator";
+import { formatMoney, getItemTotalCents, getItemUnitPriceCents } from "../domain/splitCalculator";
 import type { Receipt } from "../domain/types";
 import { createBlankItem } from "../domain/defaultSplit";
 import {
@@ -63,17 +63,14 @@ export function ReceiptEditor({
   const updateItem = (id: string, field: "name" | "priceCents", value: string | number) => {
     onReceiptChange({
       ...receipt,
-      items: receipt.items.map((item) =>
-        item.id === id
-          ? field === "priceCents"
-            ? {
-                ...item,
-                priceCents: Number(value),
-                unitPriceCents: Math.round(Number(value) / (item.quantity ?? 1)),
-              }
-            : { ...item, name: String(value) }
-          : item,
-      ),
+      items: receipt.items.map((item) => {
+        if (item.id !== id) return item;
+        if (field === "priceCents") {
+          const nextItem = { ...item, priceCents: Number(value) };
+          return { ...nextItem, unitPriceCents: getItemUnitPriceCents(nextItem) };
+        }
+        return { ...item, name: String(value) };
+      }),
     });
   };
 
@@ -83,12 +80,22 @@ export function ReceiptEditor({
       items: receipt.items.map((item) => {
         if (item.id !== id) return item;
         const safeQuantity = Math.max(1, Math.round(quantity || 1));
+        const nextItem = { ...item, quantity: safeQuantity };
         return {
-          ...item,
-          quantity: safeQuantity,
-          unitPriceCents: Math.round(item.priceCents / safeQuantity),
+          ...nextItem,
+          unitPriceCents: getItemUnitPriceCents(nextItem),
           quantityAssignments: safeQuantity > 1 ? item.quantityAssignments ?? {} : {},
         };
+      }),
+    });
+
+  const updatePriceEntryMode = (id: string, priceEntryMode: "lineTotal" | "unitPrice") =>
+    onReceiptChange({
+      ...receipt,
+      items: receipt.items.map((item) => {
+        if (item.id !== id) return item;
+        const nextItem = { ...item, priceEntryMode };
+        return { ...nextItem, unitPriceCents: getItemUnitPriceCents(nextItem) };
       }),
     });
 
@@ -249,6 +256,7 @@ export function ReceiptEditor({
               <span>Qty</span>
               <input
                 type="number"
+                inputMode="numeric"
                 min="1"
                 step="1"
                 aria-label={`${item.name || `item ${index + 1}`} quantity`}
@@ -256,6 +264,22 @@ export function ReceiptEditor({
                 onChange={(event) => updateQuantity(item.id, Number(event.target.value))}
               />
             </label>
+            <label className="price-mode-field">
+              <span>Price is</span>
+              <select
+                aria-label={`${item.name || `item ${index + 1}`} price type`}
+                value={item.priceEntryMode ?? "lineTotal"}
+                onChange={(event) => updatePriceEntryMode(item.id, event.target.value as "lineTotal" | "unitPrice")}
+              >
+                <option value="lineTotal">Total</option>
+                <option value="unitPrice">Each</option>
+              </select>
+            </label>
+            {(item.quantity ?? 1) > 1 && (
+              <small className="line-total-note">
+                Line total {formatMoney(getItemTotalCents(item))} · each {formatMoney(getItemUnitPriceCents(item))}
+              </small>
+            )}
             <div className="item-row-actions">
               <button aria-label={`Duplicate ${item.name || `item ${index + 1}`}`} onClick={() => duplicateItem(item.id)}>⧉</button>
               <button aria-label={`Delete ${item.name || `item ${index + 1}`}`} onClick={() => removeItem(item.id)}>×</button>
@@ -278,7 +302,7 @@ export function ReceiptEditor({
         ))}
       </div>
       <p className="math-note">
-        Items {formatMoney(receipt.items.reduce((sum, item) => sum + item.priceCents, 0))} ·
+        Items {formatMoney(receipt.items.reduce((sum, item) => sum + getItemTotalCents(item), 0))} ·
         Everything remains editable.
       </p>
     </section>
