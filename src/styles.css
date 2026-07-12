@@ -86,6 +86,28 @@ h1 em { color: var(--green); }
   box-shadow: 0 8px 20px rgba(23, 33, 29, .04);
 }
 .upload-button input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.receipt-photo-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.camera-dialog { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 18px; background: rgba(10, 18, 15, .82); backdrop-filter: blur(10px); }
+.camera-sheet { width: min(620px, 100%); max-height: calc(100dvh - 36px); overflow: auto; padding: 22px; border-radius: 24px; background: #f9f7f1; box-shadow: 0 30px 90px rgba(0,0,0,.42); }
+.camera-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 16px; }
+.camera-heading h2 { margin: 5px 0 0; font-size: clamp(24px, 5vw, 34px); }
+.camera-close { width: 38px; height: 38px; flex: 0 0 auto; border: 0; border-radius: 50%; background: #e9e4da; color: #44514b; cursor: pointer; font-size: 24px; }
+.camera-viewfinder { position: relative; min-height: 360px; overflow: hidden; border-radius: 18px; background: #111915; }
+.camera-viewfinder video { display: block; width: 100%; height: min(62vh, 520px); object-fit: cover; }
+.receipt-guide { position: absolute; inset: 9% 13%; border: 1px solid rgba(255,255,255,.42); border-radius: 8px; box-shadow: 0 0 0 999px rgba(0,0,0,.24); }
+.receipt-guide i { position: absolute; width: 42px; height: 42px; border-color: #fff; border-style: solid; filter: drop-shadow(0 2px 4px rgba(0,0,0,.38)); }
+.receipt-guide i:nth-child(1) { top: -2px; left: -2px; border-width: 4px 0 0 4px; border-radius: 8px 0 0; }
+.receipt-guide i:nth-child(2) { top: -2px; right: -2px; border-width: 4px 4px 0 0; border-radius: 0 8px 0 0; }
+.receipt-guide i:nth-child(3) { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-radius: 0 0 8px; }
+.receipt-guide i:nth-child(4) { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-radius: 0 0 0 8px; }
+.camera-message { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 28px; color: #fff; text-align: center; font-weight: 800; }
+.camera-error { background: #2a1d19; color: #ffd9cc; }
+.camera-tips { display: flex; justify-content: center; flex-wrap: wrap; gap: 7px 16px; margin: 14px 0; color: #647069; font-size: 12px; }
+.camera-tips span::before { content: "✓"; margin-right: 5px; color: var(--green); font-weight: 900; }
+.camera-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.camera-shutter { display: flex; align-items: center; gap: 10px; border: 0; padding: 7px 16px 7px 7px; border-radius: 999px; color: #fff; background: var(--green); cursor: pointer; }
+.camera-shutter span { width: 38px; height: 38px; border: 4px solid #fff; border-radius: 50%; box-shadow: inset 0 0 0 3px var(--green); background: #fff; }
+.camera-shutter:disabled { cursor: not-allowed; opacity: .5; }
 .field { display: grid; gap: 7px; color: #5e6964; font-size: 13px; font-weight: 700; }
 .field input, .receipt-row input, .receipt-totals input, .person-input input, .share-inputs input, .room-actions input {
   border: 1.5px solid var(--input-border);
@@ -211,6 +233,11 @@ footer { padding: 45px 20px 60px; text-align: center; color: #747e78; font-size:
   .receipt-preview { min-height: 200px; }
   .room-actions { flex-wrap: wrap; }
   .section-heading .upload-button, .section-heading .secondary-button { justify-self: start; }
+  .receipt-photo-actions { justify-content: flex-start; }
+  .camera-dialog { padding: 0; place-items: stretch; }
+  .camera-sheet { width: 100%; max-height: 100dvh; min-height: 100dvh; padding: 18px 14px; border-radius: 0; }
+  .camera-viewfinder { min-height: 54vh; }
+  .camera-viewfinder video { height: 58vh; }
   .receipt-row { grid-template-columns: minmax(0, 1fr) 104px; gap: 8px; align-items: end; }
   .receipt-row .money-input { grid-column: 2; }
   .quantity-field { grid-column: 1; }

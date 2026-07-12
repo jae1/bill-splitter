@@ -190,3 +190,14 @@ with responsive styling, automated checks, and quickstart validation.
 
 - [x] T092 Replace accounting-oriented status text with `All set` and `Needs review`
 - [x] T093 Add summary status regression coverage
+
+## Phase 23: Existing Receipt Photo Selection
+
+- [x] T094 Add separate camera and existing-photo inputs to the receipt editor
+- [x] T095 Add regression coverage for camera capture and photo-library input attributes
+
+## Phase 24: Guided Receipt Camera
+
+- [x] T096 Replace native camera capture with an in-app rear-camera viewfinder
+- [x] T097 Add receipt boundary overlay, capture tips, permission recovery, and still-image capture
+- [x] T098 Add guided-camera regression coverage and run validation

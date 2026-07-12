@@ -49,11 +49,17 @@ without uploading a file.
 
 1. **Given** a blank split, **When** the host adds items manually, **Then** the complete
    split flow works without an uploaded image.
-2. **Given** existing manual work, **When** extraction completes, **Then** the host sees a
+2. **Given** a previously captured receipt image, **When** the host chooses an existing
+   photo, **Then** the product loads it for the same preview, crop, and OCR draft flow.
+3. **Given** camera access, **When** the host takes a new photo, **Then** a live receipt
+   frame and clear lighting and stability guidance are visible before capture.
+4. **Given** camera access is unavailable or denied, **When** the camera cannot start,
+   **Then** the product explains the failure and keeps existing-photo selection available.
+5. **Given** existing manual work, **When** extraction completes, **Then** the host sees a
    separate draft and chooses whether to apply it.
-2. **Given** uncertain or inconsistent extraction, **When** the draft is displayed,
+6. **Given** uncertain or inconsistent extraction, **When** the draft is displayed,
    **Then** questionable fields and total mismatches are clearly identified.
-3. **Given** extraction failure, **When** the host continues, **Then** manual receipt
+7. **Given** extraction failure, **When** the host continues, **Then** manual receipt
    entry remains available.
 
 ---
@@ -130,6 +136,10 @@ and verify the other receives the same revision.
   parsing is uncertain, the raw recognized text MUST remain available for review.
 - **FR-003c**: Before OCR, users MUST be able to preview, rotate, and crop the receipt
   image so surrounding tables, hands, and backgrounds are excluded from recognition.
+- **FR-003d**: On supported mobile devices, users MUST be able to choose between taking
+  a new receipt photo and selecting an existing image from their photo library or files.
+- **FR-003e**: The in-app camera MUST display a visible receipt boundary guide, practical
+  capture tips, and a recoverable error when camera access is denied or unsupported.
 - **FR-004**: The host MUST be able to add, edit, remove, and reorder receipt items.
 - **FR-004a**: The host MUST be able to duplicate an item and rapidly add consecutive
   item rows using the keyboard.

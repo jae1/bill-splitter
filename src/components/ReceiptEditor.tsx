@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { formatMoney, getItemTotalCents, getItemUnitPriceCents } from "../domain/splitCalculator";
 import type { Receipt } from "../domain/types";
 import { createBlankItem } from "../domain/defaultSplit";
@@ -50,6 +50,10 @@ export function ReceiptEditor({
   const [previewUrl, setPreviewUrl] = useState<string>();
   const [imageOptions, setImageOptions] = useState<ReceiptImageOptions>(defaultReceiptImageOptions);
   const [preparingImage, setPreparingImage] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [cameraError, setCameraError] = useState<string>();
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (!sourceFile) return;
@@ -69,6 +73,47 @@ export function ReceiptEditor({
       });
     return () => { cancelled = true; };
   }, [sourceFile, imageOptions]);
+
+  useEffect(() => {
+    if (!cameraOpen) return;
+    let cancelled = false;
+    let activeStream: MediaStream | undefined;
+    setCameraReady(false);
+    setCameraError(undefined);
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraError("Live camera is not supported on this device. Choose an existing photo instead.");
+      return;
+    }
+
+    void navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" } },
+      audio: false,
+    }).then((stream) => {
+      if (cancelled) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      activeStream = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    }).catch(() => {
+      if (!cancelled) {
+        setCameraError("Camera access was unavailable. Allow camera access or choose an existing photo.");
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      activeStream?.getTracks().forEach((track) => track.stop());
+    };
+  }, [cameraOpen]);
+
+  const selectSourceFile = (file: File) => {
+    setSourceFile(file);
+    setImageOptions(defaultReceiptImageOptions);
+  };
   const updateItem = (id: string, field: "name" | "priceCents", value: string | number) => {
     onReceiptChange(withAutoReceiptTotal({
       ...receipt,
@@ -121,8 +166,32 @@ export function ReceiptEditor({
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setSourceFile(file);
-    setImageOptions(defaultReceiptImageOptions);
+    selectSourceFile(file);
+  };
+
+  const captureReceipt = () => {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth || !video.videoHeight) {
+      setCameraError("Camera is still starting. Try again in a moment.");
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext("2d");
+    if (!context) {
+      setCameraError("Couldn’t capture the photo. Choose an existing photo instead.");
+      return;
+    }
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        setCameraError("Couldn’t capture the photo. Try again.");
+        return;
+      }
+      selectSourceFile(new File([blob], `receipt-${Date.now()}.jpg`, { type: "image/jpeg" }));
+      setCameraOpen(false);
+    }, "image/jpeg", 0.92);
   };
 
   const updateCrop = (field: keyof ReceiptImageOptions, percent: number) =>
@@ -151,11 +220,63 @@ export function ReceiptEditor({
           <h2 id="receipt-title">Check the receipt</h2>
           <p>Enter items yourself, or prepare a clean photo for an OCR draft.</p>
         </div>
-        <label className="upload-button">
-          <input type="file" accept="image/*" capture="environment" onChange={handleFile} />
-          {sourceFile ? "Retake receipt photo" : "Take receipt photo"}
-        </label>
+        <div className="receipt-photo-actions">
+          <button className="upload-button" type="button" onClick={() => setCameraOpen(true)}>
+            {sourceFile ? "Take another photo" : "Take photo"}
+          </button>
+          <label className="upload-button">
+            <input
+              type="file"
+              accept="image/*"
+              aria-label="Choose an existing receipt photo"
+              onChange={handleFile}
+            />
+            {sourceFile ? "Choose another photo" : "Choose existing photo"}
+          </label>
+        </div>
       </div>
+
+      {cameraOpen && (
+        <div className="camera-dialog" role="dialog" aria-modal="true" aria-labelledby="camera-title">
+          <div className="camera-sheet">
+            <div className="camera-heading">
+              <div>
+                <span className="eyebrow">Receipt camera</span>
+                <h2 id="camera-title">Fit the receipt inside the frame</h2>
+              </div>
+              <button className="camera-close" type="button" aria-label="Close camera" onClick={() => setCameraOpen(false)}>×</button>
+            </div>
+            <div className="camera-viewfinder">
+              {!cameraError && (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  muted
+                  playsInline
+                  onLoadedMetadata={() => setCameraReady(true)}
+                />
+              )}
+              <div className="receipt-guide" aria-hidden="true">
+                <i /><i /><i /><i />
+              </div>
+              {!cameraReady && !cameraError && <p className="camera-message">Starting camera…</p>}
+              {cameraError && <p className="camera-message camera-error">{cameraError}</p>}
+            </div>
+            <div className="camera-tips">
+              <span>Keep all four corners visible</span>
+              <span>Avoid shadows and glare</span>
+              <span>Hold your phone steady</span>
+            </div>
+            <div className="camera-actions">
+              <button className="secondary-button" type="button" onClick={() => setCameraOpen(false)}>Cancel</button>
+              <button className="camera-shutter" type="button" disabled={!cameraReady || !!cameraError} onClick={captureReceipt}>
+                <span aria-hidden="true" />
+                <b>Capture receipt</b>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {sourceFile && (
         <div className="image-prep">
