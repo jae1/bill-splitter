@@ -17,7 +17,7 @@
 - `priceCents`: signed line amount
 - `quantity`: positive purchased unit count
 - `unitPriceCents`: derived or entered unit price
-- `quantityAssignments`: participant-to-whole-unit allocation
+- `quantityAssignments`: participant-to-allocation-weight mapping retained for shared-link compatibility; weights are independent of purchased quantity
 - `confidence`: optional extraction confidence
 - `participantIds`: zero or more equal-share assignees
 - `splitMode`: `equal | quantity | percentage | fixed`
@@ -35,7 +35,7 @@
 - participant subtotal
 - proportional tax share
 - proportional tip share
-- deterministic rounding adjustment
+- deterministic internal rounding adjustment, included in the final total but hidden from the participant summary
 - final total
 - receipt-level reconciliation difference
 

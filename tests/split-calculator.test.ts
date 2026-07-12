@@ -94,7 +94,7 @@ describe("advanced split modes", () => {
     expect(result.reconciled).toBe(true);
   });
 
-  it("rejects incomplete purchased-unit assignments", () => {
+  it("keeps purchased quantity separate from shared allocation weights", () => {
     const result = calculateSplit({
       ...receipt,
       items: [{
@@ -109,8 +109,42 @@ describe("advanced split modes", () => {
       tipCents: 0,
       totalCents: 1800,
     }, people);
-    expect(result.invalidItemIds).toContain("units");
-    expect(result.reconciled).toBe(false);
+    expect(result.totals.map((total) => total.totalCents)).toEqual([900, 900]);
+    expect(result.invalidItemIds).toEqual([]);
+    expect(result.reconciled).toBe(true);
+  });
+
+  it("reconciles the shared multi-quantity items from a real receipt", () => {
+    const threePeople: Participant[] = [
+      { id: "bora", name: "Bora" },
+      { id: "wonder", name: "Wonder" },
+      { id: "roy", name: "Roy" },
+    ];
+    const result = calculateSplit({
+      merchantName: "Din Tai Fung",
+      items: [
+        { id: "xlb", name: "Pork Xiao Long Bao", priceCents: 7000, quantity: 4, participantIds: ["bora", "wonder", "roy"], quantityAssignments: { bora: 2, wonder: 1, roy: 1 } },
+        { id: "rice", name: "Fried Rice with Shrimp", priceCents: 5550, quantity: 1, participantIds: ["bora", "wonder", "roy"] },
+        { id: "cucumber", name: "Cucumber Salad", priceCents: 1800, quantity: 2, participantIds: ["bora", "wonder", "roy"], quantityAssignments: { bora: 1, wonder: 1, roy: 1 } },
+        { id: "shao-mai", name: "Shrimp & Pork Shao Mai", priceCents: 3000, quantity: 2, participantIds: ["bora", "wonder", "roy"], quantityAssignments: { bora: 1, wonder: 1, roy: 1 } },
+        { id: "wontons", name: "Shrimp & Pork Spicy Wontons", priceCents: 3300, quantity: 2, participantIds: ["bora", "wonder"], quantityAssignments: { bora: 1, wonder: 1 } },
+        { id: "cabbage", name: "Taiwanese Cabbage w/ Garlic", priceCents: 3000, quantity: 2, participantIds: ["bora", "wonder", "roy"], quantityAssignments: { bora: 1, wonder: 1, roy: 1 } },
+        { id: "potstickers", name: "Shrimp & Pork Potstickers", priceCents: 2800, quantity: 2, participantIds: ["wonder", "roy"], quantityAssignments: { bora: 0, wonder: 1, roy: 1 } },
+        { id: "noodles", name: "Noodles w/ Sesame Sauce", priceCents: 2500, quantity: 2, participantIds: ["wonder", "roy"], quantityAssignments: { wonder: 1, roy: 1 } },
+        { id: "soup", name: "Braised Beef Noodle Soup", priceCents: 2100, quantity: 1, participantIds: ["bora"] },
+        { id: "dessert", name: "Chocolate & Mochi XLB", priceCents: 2700, quantity: 2, participantIds: ["bora", "wonder", "roy"], quantityAssignments: { bora: 1, wonder: 1, roy: 1 } },
+      ],
+      taxCents: 4102,
+      tipCents: 6075,
+      totalCents: 43927,
+    }, threePeople);
+
+    expect(result.invalidItemIds).toEqual([]);
+    expect(result.unassignedItemIds).toEqual([]);
+    expect(result.totals.map((total) => total.roundingCents)).toEqual([0, 0, 0]);
+    expect(result.totals.reduce((sum, total) => sum + total.totalCents, 0)).toBe(43927);
+    expect(result.differenceCents).toBe(0);
+    expect(result.reconciled).toBe(true);
   });
 
   it("allocates quantity shares", () => {

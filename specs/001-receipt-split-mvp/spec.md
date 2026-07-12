@@ -107,6 +107,8 @@ and verify the other receives the same revision.
   negative adjustments, or an already-included gratuity.
 - Quantity formats such as `3x Taco`, `Taco x3`, and `3 Taco` remain a single item with
   quantity three rather than three duplicate rows.
+- Multiple purchased units may be shared by a different number of participants, such as
+  two shared plates split evenly across three people.
 - An item is split among people in unequal shares or is left unassigned.
 - Receipt math differs by one or more cents due to printed rounding.
 - The uploaded file is unsupported, too large, blurry, rotated, or not a receipt.
@@ -142,9 +144,9 @@ and verify the other receives the same revision.
   allocation modes.
 - **FR-007b**: Quantity shares MUST be positive whole numbers, percentage shares MUST
   total 100%, and fixed-amount shares MUST total the item price before reconciliation.
-- **FR-007c**: Purchased item quantity MUST be distinct from weighted split mode. Whole
-  purchased units MUST be assignable to participants, and assigned units MUST equal the
-  purchased quantity before reconciliation.
+- **FR-007c**: Purchased item quantity MUST be distinct from weighted split mode. A host
+  MUST be able to split any number of purchased units across a different number of
+  participants, and allocation weights MUST NOT be required to total the purchased quantity.
 - **FR-007d**: Purchased item prices MUST support both line-total and unit-price entry
   modes. Changing quantity MUST NOT silently rewrite the entered price, and the UI MUST
   display the computed line total when quantity is greater than one.
@@ -153,10 +155,10 @@ and verify the other receives the same revision.
   default, while allowing a manual override for printed receipt differences.
 - **FR-009**: Tax and tip MUST default to proportional allocation by assigned subtotal.
 - **FR-010**: The product MUST use currency-safe rounding and assign residual cents
-  deterministically while showing where they were assigned.
+  deterministically without exposing a separate rounding line item to participants.
 - **FR-011**: The product MUST display unassigned items and reconciliation differences.
-- **FR-012**: The product MUST show an explainable subtotal, adjustments, rounding, and
-  final total for each participant.
+- **FR-012**: The product MUST show an explainable subtotal, tax, tip, and final total
+  for each participant while keeping immaterial internal rounding out of the summary.
 - **FR-013**: Finalization MUST be blocked when required items are unassigned or the
   calculated total differs from the receipt beyond the displayed tolerance.
 - **FR-014**: The active split MUST save automatically in browser storage after edits.
@@ -192,7 +194,8 @@ and verify the other receives the same revision.
 - **Receipt Item**: Description, quantity, unit or line price, confidence, and assignments.
 - **Participant**: Display name and optional selected identity in a shared copy.
 - **Assignment**: Links an item to one or more participants with equal shares in the MVP.
-- **Adjustment**: Tax, tip, discount, service fee, or rounding amount and allocation rule.
+- **Adjustment**: Tax, tip, discount, or service fee and its allocation rule. Internal
+  residual-cent rounding is not presented as a separate participant-facing adjustment.
 - **Split Summary**: Reconciled participant totals and explanation lines.
 - **Payment Handoff**: Provider, recipient, amount, memo, and explicit completion status.
 

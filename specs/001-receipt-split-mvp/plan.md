@@ -10,6 +10,8 @@ Create a mobile-first single-page web application that demonstrates the complete
 receipt splitting journey with editable sample extraction, advanced item assignment,
 currency-safe totals, reconciliation, local persistence, and portable URL sharing. Keep OCR
 behind an adapter so a real extraction service can replace the sample parser later.
+Purchased quantity remains receipt metadata; allocation weights may divide those items
+among any number of participants, including more participants than purchased units.
 
 ## Technical Context
 

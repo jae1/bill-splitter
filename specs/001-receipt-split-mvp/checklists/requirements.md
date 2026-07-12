@@ -32,3 +32,5 @@
 ## Notes
 
 - Validation passed on the first review.
+- Revalidated on 2026-07-11 after clarifying that purchased quantity is independent
+  from participant allocation weights; all checklist items remain satisfied.

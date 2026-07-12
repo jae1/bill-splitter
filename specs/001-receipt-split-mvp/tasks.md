@@ -126,7 +126,7 @@ manual entry if extraction is unavailable.
 
 - [x] T068 Extend receipt items with purchased quantity and unit allocations in `src/domain/types.ts`
 - [x] T069 Parse common OCR quantity formats in `src/services/receiptExtraction.ts`
-- [x] T070 Allocate line totals by assigned units in `src/domain/splitCalculator.ts`
+- [x] T070 Allocate line totals by assigned units in `src/domain/splitCalculator.ts` (superseded by T086)
 - [x] T071 Add quantity and participant-unit controls in `src/components/ReceiptEditor.tsx` and `src/components/AssignmentBoard.tsx`
 - [x] T072 Add quantity parsing and reconciliation tests in `tests/`
 - [x] T073 Run tests, build, browser validation, and production deployment
@@ -172,3 +172,16 @@ with responsive styling, automated checks, and quickstart validation.
 - [x] T082 Auto-update receipt total from items, tax, and tip during manual entry
 - [x] T083 Add manual override and return-to-auto controls in the receipt editor
 - [x] T084 Validate tests, build, and production deployment
+
+## Phase 20: Shared Multi-Quantity Items
+
+- [x] T085 Separate purchased quantity from participant allocation weights in the specification and data model
+- [x] T086 Allow any positive allocation-weight total for multi-quantity items in `src/domain/splitCalculator.ts`
+- [x] T087 Replace misleading whole-unit assignment labels in `src/components/AssignmentBoard.tsx`
+- [x] T088 Add a real-receipt regression test for two ordered plates shared across three participants
+- [x] T089 Run the full test suite and production build
+
+## Phase 21: Hide Internal Rounding
+
+- [x] T090 Remove the participant-facing rounding row while preserving currency-safe final totals
+- [x] T091 Update the financial-summary requirements and add UI regression coverage

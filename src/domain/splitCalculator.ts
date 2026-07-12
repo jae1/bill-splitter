@@ -43,13 +43,11 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
         units: item.quantityAssignments?.[participant.id] ?? 0,
       }));
       const assignedUnits = assignments.reduce((sum, assignment) => sum + assignment.units, 0);
-      if (
-        assignments.some(({ units }) => !Number.isInteger(units) || units < 0) ||
-        assignedUnits !== purchasedQuantity
-      ) {
+      if (assignments.some(({ units }) => !Number.isInteger(units) || units < 0)) {
         invalidItemIds.push(item.id);
         return;
       }
+      if (assignedUnits === 0) return;
       const shares = allocate(itemTotalCents, assignments.map(({ units }) => units));
       assignments.forEach(({ index }, shareIndex) => {
         subtotals[index] += shares[shareIndex];
@@ -89,10 +87,19 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
     });
   });
 
+  const unassignedItemIds = receipt.items
+    .filter((item) =>
+      (item.quantity ?? 1) > 1
+        ? Object.values(item.quantityAssignments ?? {}).reduce((sum, units) => sum + units, 0) === 0
+        : item.participantIds.length === 0,
+    )
+    .map((item) => item.id);
+
   const tax = allocate(receipt.taxCents, subtotals);
   const tip = allocate(receipt.tipCents, subtotals);
   const calculated = subtotals.reduce((sum, value) => sum + value, 0) + receipt.taxCents + receipt.tipCents;
-  const rounding = allocate(receipt.totalCents - calculated, subtotals);
+  const canApplyRounding = invalidItemIds.length === 0 && unassignedItemIds.length === 0;
+  const rounding = allocate(canApplyRounding ? receipt.totalCents - calculated : 0, subtotals);
   const totals: ParticipantTotal[] = participants.map((participant, index) => ({
     participant,
     subtotalCents: subtotals[index],
@@ -101,13 +108,6 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
     roundingCents: rounding[index],
     totalCents: subtotals[index] + tax[index] + tip[index] + rounding[index],
   }));
-  const unassignedItemIds = receipt.items
-    .filter((item) =>
-      (item.quantity ?? 1) > 1
-        ? Object.values(item.quantityAssignments ?? {}).reduce((sum, units) => sum + units, 0) === 0
-        : item.participantIds.length === 0,
-    )
-    .map((item) => item.id);
   const distributedCents = totals.reduce((sum, total) => sum + total.totalCents, 0);
   return {
     totals,

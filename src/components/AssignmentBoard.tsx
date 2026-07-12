@@ -151,7 +151,10 @@ export function AssignmentBoard({
       </div>
 
       <div className="assignment-list">
-        {receipt.items.map((item) => (
+        {receipt.items.map((item) => {
+          const assignedUnits = Object.values(item.quantityAssignments ?? {})
+            .reduce((sum, units) => sum + units, 0);
+          return (
           <article className={`assignment-card ${item.participantIds.length ? "" : "unassigned"}`} key={item.id}>
             <div>
               <strong>{item.name}</strong>
@@ -178,7 +181,7 @@ export function AssignmentBoard({
                 >
                   <span>{person.name || "Unnamed"}</span>
                   <button
-                    aria-label={`Remove one ${item.name} from ${person.name}`}
+                    aria-label={`Decrease ${item.name} share weight for ${person.name}`}
                     onClick={() => updateUnitAssignment(
                       item.id,
                       person.id,
@@ -187,7 +190,7 @@ export function AssignmentBoard({
                   >−</button>
                   <b>{item.quantityAssignments?.[person.id] ?? 0}</b>
                   <button
-                    aria-label={`Add one ${item.name} to ${person.name}`}
+                    aria-label={`Increase ${item.name} share weight for ${person.name}`}
                     onClick={() => updateUnitAssignment(
                       item.id,
                       person.id,
@@ -199,8 +202,7 @@ export function AssignmentBoard({
             </div>
             {getItemQuantity(item) > 1 && (
               <div className="assignment-progress">
-                Assigned {Object.values(item.quantityAssignments ?? {}).reduce((sum, units) => sum + units, 0)}
-                {" / "}{item.quantity}
+                Allocation weight {assignedUnits} · {item.quantity} ordered
               </div>
             )}
             {(item.quantity ?? 1) === 1 && item.participantIds.length > 1 && (
@@ -257,7 +259,8 @@ export function AssignmentBoard({
             )}
             {!item.participantIds.length && <small className="assignment-warning">Needs someone</small>}
           </article>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

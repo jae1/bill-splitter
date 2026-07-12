@@ -52,7 +52,6 @@ export function SplitSummary({
               <div><dt>Food & drinks</dt><dd>{formatMoney(total.subtotalCents)}</dd></div>
               <div><dt>Tax</dt><dd>{formatMoney(total.taxCents)}</dd></div>
               <div><dt>Tip</dt><dd>{formatMoney(total.tipCents)}</dd></div>
-              {!!total.roundingCents && <div><dt>Rounding</dt><dd>{formatMoney(total.roundingCents)}</dd></div>}
             </dl>
           </article>
         ))}
