@@ -185,3 +185,8 @@ with responsive styling, automated checks, and quickstart validation.
 
 - [x] T090 Remove the participant-facing rounding row while preserving currency-safe final totals
 - [x] T091 Update the financial-summary requirements and add UI regression coverage
+
+## Phase 22: Plain-Language Status
+
+- [x] T092 Replace accounting-oriented status text with `All set` and `Needs review`
+- [x] T093 Add summary status regression coverage

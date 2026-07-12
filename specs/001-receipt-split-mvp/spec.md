@@ -196,7 +196,7 @@ and verify the other receives the same revision.
 - **Assignment**: Links an item to one or more participants with equal shares in the MVP.
 - **Adjustment**: Tax, tip, discount, or service fee and its allocation rule. Internal
   residual-cent rounding is not presented as a separate participant-facing adjustment.
-- **Split Summary**: Reconciled participant totals and explanation lines.
+- **Split Summary**: Validated participant totals and plain-language explanation lines.
 - **Payment Handoff**: Provider, recipient, amount, memo, and explicit completion status.
 
 ## Success Criteria *(mandatory)*

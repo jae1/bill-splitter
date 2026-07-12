@@ -26,6 +26,26 @@ describe("SplitSummary", () => {
     );
 
     expect(screen.getByText("$12.81")).toBeTruthy();
+    expect(screen.getByText("All set")).toBeTruthy();
     expect(screen.queryByText("Rounding")).toBeNull();
+  });
+
+  it("uses a plain-language review status", () => {
+    render(
+      <SplitSummary
+        merchant="Test"
+        totals={[]}
+        unassignedCount={1}
+        invalidCount={0}
+        differenceCents={1000}
+        reconciled={false}
+        savedLabel="Saved"
+        onShare={vi.fn()}
+        onReset={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Needs review")).toBeTruthy();
+    expect(screen.queryByText("Reconciled")).toBeNull();
   });
 });

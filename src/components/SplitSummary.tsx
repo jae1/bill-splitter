@@ -16,7 +16,6 @@ type Props = {
 
 export function SplitSummary({
   totals,
-  unassignedCount,
   invalidCount,
   differenceCents,
   reconciled,
@@ -34,7 +33,7 @@ export function SplitSummary({
           <p>Every dollar has a visible path from receipt to person.</p>
         </div>
         <span className={`status-pill ${reconciled ? "success" : ""}`}>
-          {reconciled ? "Reconciled" : `${unassignedCount + invalidCount} items need review`}
+          {reconciled ? "All set" : "Needs review"}
         </span>
       </div>
 
