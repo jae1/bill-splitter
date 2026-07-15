@@ -34,20 +34,19 @@ const allocate = (amount: number, weights: number[]) => {
 export function calculateSplit(receipt: Receipt, participants: Participant[]) {
   const subtotals = participants.map(() => 0);
   const invalidItemIds: string[] = [];
+  const participantIds = new Set(participants.map((participant) => participant.id));
   receipt.items.forEach((item) => {
-    const purchasedQuantity = getItemQuantity(item);
     const itemTotalCents = getItemTotalCents(item);
-    if (purchasedQuantity > 1) {
-      const assignments = participants.map((participant, index) => ({
-        index,
-        units: item.quantityAssignments?.[participant.id] ?? 0,
-      }));
-      const assignedUnits = assignments.reduce((sum, assignment) => sum + assignment.units, 0);
-      if (assignments.some(({ units }) => !Number.isInteger(units) || units < 0)) {
-        invalidItemIds.push(item.id);
-        return;
-      }
-      if (assignedUnits === 0) return;
+    const assignments = participants.map((participant, index) => ({
+      index,
+      units: item.quantityAssignments?.[participant.id] ?? 0,
+    }));
+    const assignedUnits = assignments.reduce((sum, assignment) => sum + assignment.units, 0);
+    if (assignments.some(({ units }) => !Number.isInteger(units) || units < 0)) {
+      invalidItemIds.push(item.id);
+      return;
+    }
+    if (assignedUnits > 0) {
       const shares = allocate(itemTotalCents, assignments.map(({ units }) => units));
       assignments.forEach(({ index }, shareIndex) => {
         subtotals[index] += shares[shareIndex];
@@ -58,7 +57,7 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
       .map((participant, index) => ({ participant, index }))
       .filter(({ participant }) => item.participantIds.includes(participant.id));
     if (!assigned.length) return;
-    const mode = item.splitMode ?? "equal";
+    const mode = item.splitMode === "quantity" ? "equal" : item.splitMode ?? "equal";
     const values = assigned.map(({ participant }) => item.shares?.[participant.id] ?? 0);
     let shares: number[];
     if (mode === "fixed") {
@@ -73,12 +72,6 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
         return;
       }
       shares = allocate(itemTotalCents, values);
-    } else if (mode === "quantity") {
-      if (values.some((value) => !Number.isInteger(value) || value <= 0)) {
-        invalidItemIds.push(item.id);
-        return;
-      }
-      shares = allocate(itemTotalCents, values);
     } else {
       shares = allocate(itemTotalCents, assigned.map(() => 1));
     }
@@ -88,11 +81,12 @@ export function calculateSplit(receipt: Receipt, participants: Participant[]) {
   });
 
   const unassignedItemIds = receipt.items
-    .filter((item) =>
-      (item.quantity ?? 1) > 1
-        ? Object.values(item.quantityAssignments ?? {}).reduce((sum, units) => sum + units, 0) === 0
-        : item.participantIds.length === 0,
-    )
+    .filter((item) => {
+      const assignedUnits = Object.entries(item.quantityAssignments ?? {})
+        .filter(([participantId]) => participantIds.has(participantId))
+        .reduce((sum, [, units]) => sum + units, 0);
+      return assignedUnits === 0 && item.participantIds.length === 0;
+    })
     .map((item) => item.id);
 
   const tax = allocate(receipt.taxCents, subtotals);

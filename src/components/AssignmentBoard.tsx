@@ -1,6 +1,5 @@
 import type { Participant, Receipt } from "../domain/types";
 import { formatMoney, getItemQuantity, getItemTotalCents, getItemUnitPriceCents } from "../domain/splitCalculator";
-import { MoneyInput } from "./MoneyInput";
 
 type Props = {
   receipt: Receipt;
@@ -24,7 +23,7 @@ export function AssignmentBoard({
   const removePerson = (participant: Participant) => {
     if (participants.length === 1) return;
     const assignedCount = receipt.items.filter((item) =>
-      item.participantIds.includes(participant.id),
+      item.participantIds.includes(participant.id) || (item.quantityAssignments?.[participant.id] ?? 0) > 0,
     ).length;
     if (
       assignedCount > 0 &&
@@ -39,56 +38,17 @@ export function AssignmentBoard({
     onParticipantsChange(participants.filter((person) => person.id !== participant.id));
     onReceiptChange({
       ...receipt,
-      items: receipt.items.map((item) => ({
-        ...item,
-        participantIds: item.participantIds.filter((id) => id !== participant.id),
-      })),
-    });
-  };
-
-  const toggleAssignment = (itemId: string, participantId: string) =>
-    onReceiptChange({
-      ...receipt,
-      items: receipt.items.map((item) =>
-        item.id === itemId
-          ? (() => {
-              const selected = item.participantIds.includes(participantId);
-              const participantIds = selected
-                ? item.participantIds.filter((id) => id !== participantId)
-                : [...item.participantIds, participantId];
-              const shares = { ...item.shares };
-              if (selected) delete shares[participantId];
-              else if ((item.splitMode ?? "equal") === "quantity") shares[participantId] = 1;
-              return { ...item, participantIds, shares };
-            })()
-          : item,
-      ),
-    });
-
-  const updateSplitMode = (itemId: string, splitMode: "equal" | "quantity" | "percentage" | "fixed") =>
-    onReceiptChange({
-      ...receipt,
       items: receipt.items.map((item) => {
-        if (item.id !== itemId) return item;
-        const count = item.participantIds.length;
-        const shares: Record<string, number> = {};
-        item.participantIds.forEach((id, index) => {
-          if (splitMode === "quantity") shares[id] = 1;
-          if (splitMode === "percentage") shares[id] = Math.floor(100 / count) + (index < 100 % count ? 1 : 0);
-          const itemTotalCents = getItemTotalCents(item);
-          if (splitMode === "fixed") shares[id] = Math.floor(itemTotalCents / count) + (index < itemTotalCents % count ? 1 : 0);
-        });
-        return { ...item, splitMode, shares };
+        const quantityAssignments = { ...item.quantityAssignments };
+        delete quantityAssignments[participant.id];
+        return {
+          ...item,
+          participantIds: item.participantIds.filter((id) => id !== participant.id),
+          quantityAssignments,
+        };
       }),
     });
-
-  const updateShare = (itemId: string, participantId: string, value: number) =>
-    onReceiptChange({
-      ...receipt,
-      items: receipt.items.map((item) =>
-        item.id === itemId ? { ...item, shares: { ...item.shares, [participantId]: value } } : item,
-      ),
-    });
+  };
 
   const updateUnitAssignment = (itemId: string, participantId: string, units: number) =>
     onReceiptChange({
@@ -112,7 +72,7 @@ export function AssignmentBoard({
         <div>
           <span className="eyebrow">Step 2</span>
           <h2 id="assign-title">Who had what?</h2>
-          <p>Tap everyone who shared an item. We split shared plates evenly.</p>
+          <p>Use − and + to set each person's share of an item.</p>
         </div>
         <button className="secondary-button" onClick={addPerson}>+ Add person</button>
       </div>
@@ -152,8 +112,9 @@ export function AssignmentBoard({
 
       <div className="assignment-list">
         {receipt.items.map((item) => {
-          const assignedUnits = Object.values(item.quantityAssignments ?? {})
-            .reduce((sum, units) => sum + units, 0);
+          const assignedUnits = participants
+            .reduce((sum, participant) => sum + (item.quantityAssignments?.[participant.id] ?? 0), 0);
+          const orderedQuantity = getItemQuantity(item);
           return (
           <article className={`assignment-card ${item.participantIds.length ? "" : "unassigned"}`} key={item.id}>
             <div>
@@ -164,99 +125,40 @@ export function AssignmentBoard({
               </span>
             </div>
             <div className="participant-picker" aria-label={`Assign ${item.name || "item"}`}>
-              {getItemQuantity(item) === 1 && participants.map((person) => (
-                <button
-                  key={person.id}
-                  className={`participant-chip ${item.participantIds.includes(person.id) ? "selected" : ""}`}
-                  aria-pressed={item.participantIds.includes(person.id)}
-                  onClick={() => toggleAssignment(item.id, person.id)}
-                >
-                  {person.name || "Unnamed"}
-                </button>
-              ))}
-              {getItemQuantity(item) > 1 && participants.map((person) => (
+              {participants.map((person) => (
                 <div
-                  className={`participant-chip unit-chip ${(item.quantityAssignments?.[person.id] ?? 0) > 0 ? "selected" : ""}`}
+                  className={`share-control ${(item.quantityAssignments?.[person.id] ?? 0) > 0 ? "selected" : ""}`}
                   key={person.id}
                 >
-                  <span>{person.name || "Unnamed"}</span>
-                  <button
-                    aria-label={`Decrease ${item.name} share weight for ${person.name}`}
-                    onClick={() => updateUnitAssignment(
-                      item.id,
-                      person.id,
-                      (item.quantityAssignments?.[person.id] ?? 0) - 1,
-                    )}
-                  >−</button>
-                  <b>{item.quantityAssignments?.[person.id] ?? 0}</b>
-                  <button
-                    aria-label={`Increase ${item.name} share weight for ${person.name}`}
-                    onClick={() => updateUnitAssignment(
-                      item.id,
-                      person.id,
-                      (item.quantityAssignments?.[person.id] ?? 0) + 1,
-                    )}
-                  >+</button>
+                  <span className="share-person">{person.name || "Unnamed"}</span>
+                  <span className="share-stepper">
+                    <button
+                      aria-label={`Give ${person.name} less of ${item.name}`}
+                      onClick={() => updateUnitAssignment(
+                        item.id,
+                        person.id,
+                        (item.quantityAssignments?.[person.id] ?? 0) - 1,
+                      )}
+                    >−</button>
+                    <b>{item.quantityAssignments?.[person.id] ?? 0}</b>
+                    <button
+                      aria-label={`Give ${person.name} more of ${item.name}`}
+                      onClick={() => updateUnitAssignment(
+                        item.id,
+                        person.id,
+                        (item.quantityAssignments?.[person.id] ?? 0) + 1,
+                      )}
+                    >+</button>
+                  </span>
                 </div>
               ))}
             </div>
-            {getItemQuantity(item) > 1 && (
-              <div className="assignment-progress">
-                Allocation weight {assignedUnits} · {item.quantity} ordered
+            <div className="assignment-progress">
+              {assignedUnits === 0
+                ? "No one selected yet"
+                : `Split into ${assignedUnits} share${assignedUnits === 1 ? "" : "s"}`}
+              {orderedQuantity > 1 && ` · receipt says ${orderedQuantity} ordered`}
               </div>
-            )}
-            {(item.quantity ?? 1) === 1 && item.participantIds.length > 1 && (
-              <div className="split-editor">
-                <label>
-                  Split
-                  <select
-                    value={item.splitMode ?? "equal"}
-                    onChange={(event) =>
-                      updateSplitMode(
-                        item.id,
-                        event.target.value as "equal" | "quantity" | "percentage" | "fixed",
-                      )
-                    }
-                  >
-                    <option value="equal">Equally</option>
-                    <option value="quantity">By weight</option>
-                    <option value="percentage">By percentage</option>
-                    <option value="fixed">Exact amounts</option>
-                  </select>
-                </label>
-                {(item.splitMode ?? "equal") !== "equal" && (
-                  <div className="share-inputs">
-                    {item.participantIds.map((id) => {
-                      const person = participants.find((candidate) => candidate.id === id);
-                      const mode = item.splitMode ?? "equal";
-                      const divisor = mode === "fixed" ? 100 : 1;
-                      return (
-                        <label key={id}>
-                          <span>{person?.name}</span>
-                          {mode === "fixed" ? (
-                            <MoneyInput
-                              aria-label={`${person?.name ?? "Participant"} exact amount`}
-                              valueCents={item.shares?.[id] ?? 0}
-                              onValueCentsChange={(value) => updateShare(item.id, id, value)}
-                            />
-                          ) : (
-                            <input
-                              type="number"
-                              inputMode="numeric"
-                              min={mode === "quantity" ? 1 : 0}
-                              step="1"
-                              value={item.shares?.[id] ?? 0}
-                              onChange={(event) => updateShare(item.id, id, Math.round(Number(event.target.value)))}
-                            />
-                          )}
-                          <small>{mode === "percentage" ? "%" : mode === "fixed" ? "$" : "×"}</small>
-                        </label>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
             {!item.participantIds.length && <small className="assignment-warning">Needs someone</small>}
           </article>
           );

@@ -114,6 +114,25 @@ describe("advanced split modes", () => {
     expect(result.reconciled).toBe(true);
   });
 
+  it("uses share counts for single-quantity items", () => {
+    const result = calculateSplit({
+      ...receipt,
+      items: [{
+        id: "single",
+        name: "Noodles",
+        priceCents: 1200,
+        quantity: 1,
+        quantityAssignments: { a: 1, b: 2 },
+        participantIds: ["a", "b"],
+      }],
+      taxCents: 0,
+      tipCents: 0,
+      totalCents: 1200,
+    }, people);
+    expect(result.totals.map((total) => total.totalCents)).toEqual([400, 800]);
+    expect(result.reconciled).toBe(true);
+  });
+
   it("reconciles the shared multi-quantity items from a real receipt", () => {
     const threePeople: Participant[] = [
       { id: "bora", name: "Bora" },
@@ -141,13 +160,17 @@ describe("advanced split modes", () => {
 
     expect(result.invalidItemIds).toEqual([]);
     expect(result.unassignedItemIds).toEqual([]);
+    expect(result.totals.map((total) => total.subtotalCents)).toEqual([12600, 11400, 9750]);
+    expect(result.totals.map((total) => total.taxCents)).toEqual([1531, 1386, 1185]);
+    expect(result.totals.map((total) => total.tipCents)).toEqual([2268, 2052, 1755]);
     expect(result.totals.map((total) => total.roundingCents)).toEqual([0, 0, 0]);
+    expect(result.totals.map((total) => total.totalCents)).toEqual([16399, 14838, 12690]);
     expect(result.totals.reduce((sum, total) => sum + total.totalCents, 0)).toBe(43927);
     expect(result.differenceCents).toBe(0);
     expect(result.reconciled).toBe(true);
   });
 
-  it("allocates quantity shares", () => {
+  it("treats legacy weight mode as an equal split", () => {
     const result = calculateSplit({
       ...receipt,
       items: [{
@@ -162,7 +185,7 @@ describe("advanced split modes", () => {
       tipCents: 0,
       totalCents: 1200,
     }, people);
-    expect(result.totals.map((total) => total.totalCents)).toEqual([400, 800]);
+    expect(result.totals.map((total) => total.totalCents)).toEqual([600, 600]);
   });
 
   it("rejects percentages that do not total 100", () => {
